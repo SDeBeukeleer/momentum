@@ -1,0 +1,132 @@
+// Momentum - Habit Tracker PWA
+// Database schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String
+  name          String?
+  goalWeight    Float?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  habits        Habit[]
+  weightLogs    WeightLog[]
+  activityLogs  ActivityLog[]
+  badges        UserBadge[]
+}
+
+model Habit {
+  id                    String    @id @default(cuid())
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name                  String
+  description           String?
+  icon                  String    @default("target")
+  color                 String    @default("#6366f1")
+
+  // Credit system configuration
+  creditsToEarn         Int       @default(1)
+  completionsForCredit  Int       @default(10)
+  currentCredits        Int       @default(0)
+  completionCount       Int       @default(0)
+
+  // Streak tracking
+  currentStreak         Int       @default(0)
+  longestStreak         Int       @default(0)
+  lastCompletedAt       DateTime?
+
+  // Scheduling
+  frequency             String    @default("daily")
+  targetDays            String?
+
+  isArchived            Boolean   @default(false)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  completions           HabitCompletion[]
+
+  @@index([userId])
+}
+
+model HabitCompletion {
+  id        String   @id @default(cuid())
+  habitId   String
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  date      DateTime @db.Date
+  skipped   Boolean  @default(false)
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([habitId, date])
+  @@index([habitId])
+  @@index([date])
+}
+
+model WeightLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  weight    Float
+  unit      String   @default("kg")
+  date      DateTime @db.Date
+  notes     String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId])
+}
+
+model ActivityLog {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  activityType  String
+  date          DateTime @db.Date
+  duration      Int?
+  distance      Float?
+  notes         String?
+  metrics       Json?
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  condition   Json
+
+  users       UserBadge[]
+}
+
+model UserBadge {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId   String
+  badge     Badge    @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  earnedAt  DateTime @default(now())
+
+  @@unique([userId, badgeId])
+  @@index([userId])
+}
