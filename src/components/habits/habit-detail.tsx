@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -17,7 +17,6 @@ import {
   Check,
   Pencil,
   Trash2,
-  RefreshCw,
 } from "lucide-react";
 import {
   Dialog,
@@ -121,7 +120,26 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
     completionsForCredit: initialHabit.completionsForCredit,
     creditsToEarn: initialHabit.creditsToEarn,
   });
-  const [recalculating, setRecalculating] = useState(false);
+
+  // Automatically recalculate streak and credits on mount
+  useEffect(() => {
+    const recalculate = async () => {
+      try {
+        const res = await fetch(`/api/habits/${initialHabit.id}/recalculate`, {
+          method: "POST",
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setHabit((prev) => ({ ...prev, ...data.habit }));
+        }
+      } catch {
+        // Silently fail - data will just show cached values
+      }
+    };
+
+    recalculate();
+  }, [initialHabit.id]);
 
   const icon = getDisplayIcon(habit.icon);
   const [customEmoji, setCustomEmoji] = useState("");
@@ -273,30 +291,6 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
       toast.error("Something went wrong");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleRecalculateCredits = async () => {
-    if (recalculating) return;
-    setRecalculating(true);
-
-    try {
-      const res = await fetch(`/api/habits/${habit.id}/recalculate`, {
-        method: "POST",
-      });
-
-      if (res.ok) {
-        const updatedHabit = await res.json();
-        setHabit((prev) => ({ ...prev, ...updatedHabit }));
-        toast.success("Credits recalculated based on current streak!");
-      } else {
-        const data = await res.json();
-        toast.error(data.error || "Failed to recalculate credits");
-      }
-    } catch {
-      toast.error("Something went wrong");
-    } finally {
-      setRecalculating(false);
     }
   };
 
@@ -504,22 +498,9 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
           <span className="text-sm font-medium text-slate-600">
             Progress to next credit
           </span>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-slate-500">
-              {habit.completionCount}/{habit.completionsForCredit}
-            </span>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRecalculateCredits}
-              disabled={recalculating}
-              className="h-7 px-2 text-xs text-slate-500 hover:text-slate-700"
-              title="Recalculate credits based on current streak"
-            >
-              <RefreshCw className={`h-3 w-3 mr-1 ${recalculating ? "animate-spin" : ""}`} />
-              {recalculating ? "..." : "Recalc"}
-            </Button>
-          </div>
+          <span className="text-sm text-slate-500">
+            {habit.completionCount}/{habit.completionsForCredit}
+          </span>
         </div>
         <Progress value={creditProgress} className="h-3" />
       </Card>
