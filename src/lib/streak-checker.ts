@@ -19,7 +19,7 @@ function toUTCMidnight(date: Date): Date {
 
 /**
  * Check if a habit's streak is still valid.
- * If yesterday wasn't completed (and today isn't completed yet), reset streak and completionCount.
+ * If yesterday wasn't completed (and today isn't completed yet), reset streak.
  */
 export async function checkAndResetStreakIfNeeded(habitId: string): Promise<void> {
   const habit = await prisma.habit.findUnique({
@@ -67,12 +67,11 @@ export async function checkAndResetStreakIfNeeded(habitId: string): Promise<void
     }
   }
 
-  // Streak is broken - reset both streak and completionCount
+  // Streak is broken - reset streak (credits are kept)
   await prisma.habit.update({
     where: { id: habitId },
     data: {
       currentStreak: 0,
-      completionCount: 0,
     },
   });
 }

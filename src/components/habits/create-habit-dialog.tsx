@@ -12,7 +12,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Habit, HabitCompletion } from "@prisma/client";
 
 const SUGGESTED_EMOJIS = [
@@ -21,23 +20,16 @@ const SUGGESTED_EMOJIS = [
 ];
 
 const COLORS = [
-  "#6366f1", // Indigo
-  "#8b5cf6", // Purple
-  "#ec4899", // Pink
-  "#ef4444", // Red
-  "#f97316", // Orange
-  "#eab308", // Yellow
-  "#22c55e", // Green
-  "#14b8a6", // Teal
-  "#06b6d4", // Cyan
-  "#3b82f6", // Blue
-];
-
-const CREDIT_TEMPLATES = [
-  { name: "Easy", completions: 5, credits: 1, description: "For beginners" },
-  { name: "Standard", completions: 10, credits: 1, description: "Balanced" },
-  { name: "Challenging", completions: 20, credits: 1, description: "Serious commitment" },
-  { name: "Marathon", completions: 30, credits: 2, description: "High reward" },
+  "#d97706", // Amber
+  "#ea580c", // Orange
+  "#dc2626", // Red
+  "#db2777", // Pink
+  "#9333ea", // Purple
+  "#2563eb", // Blue
+  "#0891b2", // Cyan
+  "#059669", // Emerald
+  "#65a30d", // Lime
+  "#ca8a04", // Yellow
 ];
 
 interface CreateHabitDialogProps {
@@ -53,10 +45,8 @@ export function CreateHabitDialog({
 }: CreateHabitDialogProps) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("🎯");
-  const [color, setColor] = useState("#6366f1");
+  const [color, setColor] = useState("#d97706");
   const [customEmoji, setCustomEmoji] = useState("");
-  const [completionsForCredit, setCompletionsForCredit] = useState(10);
-  const [creditsToEarn, setCreditsToEarn] = useState(1);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -76,8 +66,6 @@ export function CreateHabitDialog({
           name: name.trim(),
           icon,
           color,
-          completionsForCredit,
-          creditsToEarn,
         }),
       });
 
@@ -95,9 +83,7 @@ export function CreateHabitDialog({
       setName("");
       setIcon("🎯");
       setCustomEmoji("");
-      setColor("#6366f1");
-      setCompletionsForCredit(10);
-      setCreditsToEarn(1);
+      setColor("#d97706");
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -109,7 +95,7 @@ export function CreateHabitDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <DialogTitle className="text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-600 bg-clip-text text-transparent">
             Create New Habit
           </DialogTitle>
         </DialogHeader>
@@ -143,12 +129,12 @@ export function CreateHabitDialog({
                 className="flex-1"
               />
               <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-slate-100 border-2 border-slate-200"
+                className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 border-2 border-amber-200"
               >
                 {icon}
               </div>
             </div>
-            <p className="text-xs text-slate-500 mb-2">Or pick from suggestions:</p>
+            <p className="text-xs text-amber-700/60 mb-2">Or pick from suggestions:</p>
             <div className="grid grid-cols-10 gap-1">
               {SUGGESTED_EMOJIS.map((emoji) => (
                 <motion.button
@@ -162,8 +148,8 @@ export function CreateHabitDialog({
                   }}
                   className={`h-9 rounded-lg text-lg transition-all ${
                     icon === emoji
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md"
-                      : "bg-slate-100 hover:bg-slate-200"
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
+                      : "bg-amber-50 hover:bg-amber-100"
                   }`}
                 >
                   {emoji}
@@ -192,87 +178,18 @@ export function CreateHabitDialog({
             </div>
           </div>
 
-          {/* Credit System */}
-          <div className="space-y-3">
-            <Label>Credit System</Label>
-            <Tabs defaultValue="templates" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="templates">Templates</TabsTrigger>
-                <TabsTrigger value="custom">Custom</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="templates" className="space-y-2 mt-3">
-                {CREDIT_TEMPLATES.map((template) => (
-                  <motion.button
-                    key={template.name}
-                    type="button"
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => {
-                      setCompletionsForCredit(template.completions);
-                      setCreditsToEarn(template.credits);
-                    }}
-                    className={`w-full p-3 rounded-lg text-left transition-all ${
-                      completionsForCredit === template.completions &&
-                      creditsToEarn === template.credits
-                        ? "bg-gradient-to-r from-indigo-50 to-purple-50 border-2 border-indigo-300"
-                        : "bg-slate-50 border-2 border-transparent hover:border-slate-200"
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">{template.name}</span>
-                      <span className="text-sm text-slate-500">
-                        {template.completions} completions = {template.credits} credit
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {template.description}
-                    </p>
-                  </motion.button>
-                ))}
-              </TabsContent>
-
-              <TabsContent value="custom" className="space-y-4 mt-3">
-                <div className="space-y-2">
-                  <Label htmlFor="completions">Completions for credit</Label>
-                  <Input
-                    id="completions"
-                    type="number"
-                    min={1}
-                    value={completionsForCredit}
-                    onChange={(e) =>
-                      setCompletionsForCredit(parseInt(e.target.value) || 1)
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="credits">Credits earned</Label>
-                  <Input
-                    id="credits"
-                    type="number"
-                    min={1}
-                    value={creditsToEarn}
-                    onChange={(e) =>
-                      setCreditsToEarn(parseInt(e.target.value) || 1)
-                    }
-                  />
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          {/* Preview */}
-          <div className="p-4 bg-slate-50 rounded-lg">
-            <p className="text-sm text-slate-600">
-              Complete this habit <strong>{completionsForCredit}</strong> times to earn{" "}
-              <strong>{creditsToEarn}</strong> credit{creditsToEarn > 1 ? "s" : ""}. Use
-              credits to skip days without breaking your streak!
+          {/* Info about credits */}
+          <div className="p-4 bg-amber-50/50 rounded-lg">
+            <p className="text-sm text-amber-800/70">
+              Earn credits by hitting milestones (7, 14, 30, 50, 100+ days).
+              Use credits to skip days without breaking your streak!
             </p>
           </div>
 
           {/* Submit */}
           <Button
             type="submit"
-            className="w-full h-11 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+            className="w-full h-11 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
             disabled={loading}
           >
             {loading ? (

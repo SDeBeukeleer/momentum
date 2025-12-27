@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getMilestonesReached } from "@/types/diorama";
 
 // Parse "YYYY-MM-DD" string to UTC midnight Date
 function parseLocalDateString(dateStr: string): Date {
@@ -107,13 +108,12 @@ export async function POST(
     }
   }
 
-  // Calculate credits based on current streak only (not total completions)
-  // Only consecutive days count toward credits
-  const creditsFromStreak = Math.floor(currentStreak / habit.completionsForCredit) * habit.creditsToEarn;
-  const completionCount = currentStreak % habit.completionsForCredit;
+  // Calculate credits based on milestones reached
+  const milestonesReached = getMilestonesReached(currentStreak);
+  const creditsFromMilestones = milestonesReached.reduce((sum, m) => sum + m.bonusCredits, 0);
 
   // Keep existing credits if they're higher (user already earned them before)
-  const currentCredits = Math.max(habit.currentCredits, creditsFromStreak);
+  const currentCredits = Math.max(habit.currentCredits, creditsFromMilestones);
 
   // Update habit stats
   const updatedHabit = await prisma.habit.update({
@@ -121,7 +121,6 @@ export async function POST(
     data: {
       currentStreak,
       longestStreak: Math.max(habit.longestStreak, currentStreak),
-      completionCount,
       currentCredits,
       lastCompletedAt: allCompletions[0]?.date || null,
     },
@@ -199,17 +198,11 @@ export async function DELETE(
     }
   }
 
-  // Credits based on current streak only
-  const completionCount = currentStreak % habit.completionsForCredit;
-
   // Don't reduce credits when removing completions (they keep earned credits)
-  // But if streak breaks, progress resets
-
   await prisma.habit.update({
     where: { id },
     data: {
       currentStreak,
-      completionCount,
       // Keep existing credits (don't reduce)
       lastCompletedAt: allCompletions[0]?.date || null,
     },

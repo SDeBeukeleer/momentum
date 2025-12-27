@@ -7,7 +7,6 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   ArrowLeft,
   Flame,
@@ -117,8 +116,6 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
     name: initialHabit.name,
     icon: initialHabit.icon,
     color: initialHabit.color,
-    completionsForCredit: initialHabit.completionsForCredit,
-    creditsToEarn: initialHabit.creditsToEarn,
   });
 
   // Automatically recalculate streak and credits on mount
@@ -143,8 +140,6 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
 
   const icon = getDisplayIcon(habit.icon);
   const [customEmoji, setCustomEmoji] = useState("");
-  const creditProgress =
-    (habit.completionCount / habit.completionsForCredit) * 100;
 
   const monthDays = getMonthDays(
     currentMonth.getFullYear(),
@@ -312,8 +307,8 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
           {icon}
         </div>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900">{habit.name}</h1>
-          <p className="text-slate-600">Tap days to mark them complete</p>
+          <h1 className="text-2xl font-bold text-amber-950">{habit.name}</h1>
+          <p className="text-amber-800/70">Tap days to mark them complete</p>
         </div>
 
         {/* Edit & Delete buttons */}
@@ -355,11 +350,11 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
                       }}
                       className="flex-1"
                     />
-                    <div className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-slate-100 border-2 border-slate-200">
+                    <div className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 border-2 border-amber-200">
                       {getDisplayIcon(editForm.icon)}
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500 mb-2">Or pick from suggestions:</p>
+                  <p className="text-xs text-amber-700/60 mb-2">Or pick from suggestions:</p>
                   <div className="grid grid-cols-10 gap-1">
                     {SUGGESTED_EMOJIS.map((emoji) => (
                       <button
@@ -371,8 +366,8 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
                         }}
                         className={`h-8 rounded-lg text-base transition-all ${
                           editForm.icon === emoji
-                            ? "bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md"
-                            : "bg-slate-100 hover:bg-slate-200"
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
+                            : "bg-amber-50 hover:bg-amber-100"
                         }`}
                       >
                         {emoji}
@@ -394,44 +389,15 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="completionsForCredit">
-                      Days for 1 credit
-                    </Label>
-                    <Input
-                      id="completionsForCredit"
-                      type="number"
-                      min={1}
-                      value={editForm.completionsForCredit}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          completionsForCredit: parseInt(e.target.value) || 7,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="creditsToEarn">Credits per reward</Label>
-                    <Input
-                      id="creditsToEarn"
-                      type="number"
-                      min={1}
-                      value={editForm.creditsToEarn}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          creditsToEarn: parseInt(e.target.value) || 1,
-                        }))
-                      }
-                      className="mt-1"
-                    />
-                  </div>
+                {/* Info about credits */}
+                <div className="p-4 bg-amber-50/50 rounded-lg">
+                  <p className="text-sm text-amber-800/70">
+                    Earn credits by hitting milestones (7, 14, 30, 50, 100+ days).
+                    Use credits to skip days without breaking your streak!
+                  </p>
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700" disabled={loading}>
                   {loading ? "Saving..." : "Save Changes"}
                 </Button>
               </form>
@@ -471,39 +437,26 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
       <div className="grid grid-cols-3 gap-4">
         <Card className="p-4 text-center">
           <Flame className="h-6 w-6 mx-auto text-orange-500 mb-2" />
-          <div className="text-2xl font-bold text-slate-900">
+          <div className="text-2xl font-bold text-amber-950">
             {habit.currentStreak}
           </div>
-          <div className="text-xs text-slate-500">Current Streak</div>
+          <div className="text-xs text-amber-700/60">Current Streak</div>
         </Card>
         <Card className="p-4 text-center">
           <Trophy className="h-6 w-6 mx-auto text-amber-500 mb-2" />
-          <div className="text-2xl font-bold text-slate-900">
+          <div className="text-2xl font-bold text-amber-950">
             {habit.longestStreak}
           </div>
-          <div className="text-xs text-slate-500">Best Streak</div>
+          <div className="text-xs text-amber-700/60">Best Streak</div>
         </Card>
         <Card className="p-4 text-center">
           <Coins className="h-6 w-6 mx-auto text-amber-500 mb-2" />
-          <div className="text-2xl font-bold text-slate-900">
+          <div className="text-2xl font-bold text-amber-950">
             {habit.currentCredits}
           </div>
-          <div className="text-xs text-slate-500">Credits</div>
+          <div className="text-xs text-amber-700/60">Credits</div>
         </Card>
       </div>
-
-      {/* Credit Progress */}
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm font-medium text-slate-600">
-            Progress to next credit
-          </span>
-          <span className="text-sm text-slate-500">
-            {habit.completionCount}/{habit.completionsForCredit}
-          </span>
-        </div>
-        <Progress value={creditProgress} className="h-3" />
-      </Card>
 
       {/* Calendar */}
       <Card className="p-4">
@@ -512,7 +465,7 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
             ← Prev
           </Button>
           <div className="flex items-center gap-2">
-            <Calendar className="h-5 w-5 text-slate-500" />
+            <Calendar className="h-5 w-5 text-amber-600" />
             <span className="font-semibold">
               {currentMonth.toLocaleString("default", {
                 month: "long",
@@ -538,7 +491,7 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
           {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
             <div
               key={day}
-              className="text-center text-xs font-medium text-slate-500 py-2"
+              className="text-center text-xs font-medium text-amber-700/60 py-2"
             >
               {day}
             </div>
@@ -565,12 +518,12 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
                 disabled={isFuture || loading}
                 className={`h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all relative ${
                   isFuture
-                    ? "text-slate-300 cursor-not-allowed"
+                    ? "text-amber-300 cursor-not-allowed"
                     : completed
                     ? "bg-gradient-to-br from-green-400 to-emerald-500 text-white shadow-sm"
                     : isToday
-                    ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500"
-                    : "hover:bg-slate-100 text-slate-700"
+                    ? "bg-amber-100 text-amber-700 ring-2 ring-amber-500"
+                    : "hover:bg-amber-50 text-amber-900"
                 }`}
               >
                 {completed && (
@@ -585,8 +538,8 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
 
       {/* Quick backfill */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-3">Quick Backfill</h3>
-        <p className="text-sm text-slate-600 mb-4">
+        <h3 className="font-semibold text-amber-950 mb-3">Quick Backfill</h3>
+        <p className="text-sm text-amber-800/70 mb-4">
           Mark multiple consecutive days at once
         </p>
         <div className="flex gap-2 flex-wrap">

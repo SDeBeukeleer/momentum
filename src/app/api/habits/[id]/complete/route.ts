@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { checkMilestoneReached } from "@/types/diorama";
 
 // Get today at UTC midnight based on local date
 function getTodayUTC(): Date {
@@ -97,18 +98,13 @@ export async function POST(
   }
   // If using credit, keep current streak
 
-  // Calculate credit progress
-  // If streak was broken, reset completionCount to start fresh
-  let newCompletionCount = streakBroken ? 1 : habit.completionCount + (useCredit ? 0 : 1);
+  // Calculate credits
   let newCredits = useCredit ? habit.currentCredits - 1 : habit.currentCredits;
 
-  // Check if earned a new credit
-  if (
-    !useCredit &&
-    newCompletionCount >= habit.completionsForCredit
-  ) {
-    newCredits += habit.creditsToEarn;
-    newCompletionCount = 0; // Reset counter
+  // Check if milestone reached - this is now the ONLY way to earn credits
+  const milestoneReached = checkMilestoneReached(newStreak);
+  if (milestoneReached && !useCredit) {
+    newCredits += milestoneReached.bonusCredits;
   }
 
   // Create completion and update habit in transaction
@@ -126,7 +122,6 @@ export async function POST(
         currentStreak: newStreak,
         longestStreak: Math.max(habit.longestStreak, newStreak),
         lastCompletedAt: today,
-        completionCount: newCompletionCount,
         currentCredits: newCredits,
       },
     }),
@@ -135,9 +130,12 @@ export async function POST(
   return NextResponse.json({
     completion,
     habit: updatedHabit,
-    creditEarned:
-      !useCredit &&
-      habit.completionCount + 1 >= habit.completionsForCredit,
+    milestoneReached: milestoneReached ? {
+      name: milestoneReached.name,
+      emoji: milestoneReached.emoji,
+      description: milestoneReached.description,
+      bonusCredits: milestoneReached.bonusCredits,
+    } : null,
   });
 }
 
@@ -182,23 +180,12 @@ export async function DELETE(
   }
 
   // Reverse the completion
-  let newStreak = Math.max(0, habit.currentStreak - 1);
-  let newCompletionCount = habit.completionCount;
-  let newCredits = habit.currentCredits;
+  const newStreak = Math.max(0, habit.currentStreak - 1);
 
-  if (completion.skipped) {
-    // Was a credit skip, restore the credit
-    newCredits += 1;
-  } else {
-    // Was a real completion
-    if (newCompletionCount === 0 && newCredits > 0) {
-      // They just earned a credit, remove it and restore counter
-      newCredits = Math.max(0, newCredits - habit.creditsToEarn);
-      newCompletionCount = habit.completionsForCredit - 1;
-    } else {
-      newCompletionCount = Math.max(0, newCompletionCount - 1);
-    }
-  }
+  // If it was a credit skip, restore the credit
+  const newCredits = completion.skipped
+    ? habit.currentCredits + 1
+    : habit.currentCredits;
 
   await prisma.$transaction([
     prisma.habitCompletion.delete({
@@ -208,7 +195,6 @@ export async function DELETE(
       where: { id },
       data: {
         currentStreak: newStreak,
-        completionCount: newCompletionCount,
         currentCredits: newCredits,
         lastCompletedAt: null,
       },

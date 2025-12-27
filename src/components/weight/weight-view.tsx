@@ -154,10 +154,10 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
   };
 
   const getTrendIcon = (change: number | null) => {
-    if (change === null) return <Minus className="h-4 w-4 text-slate-400" />;
+    if (change === null) return <Minus className="h-4 w-4 text-amber-400" />;
     if (change < 0) return <TrendingDown className="h-4 w-4 text-green-500" />;
     if (change > 0) return <TrendingUp className="h-4 w-4 text-red-500" />;
-    return <Minus className="h-4 w-4 text-slate-400" />;
+    return <Minus className="h-4 w-4 text-amber-400" />;
   };
 
   const formatChange = (change: number | null) => {
@@ -170,50 +170,50 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
           <Scale className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Weight Tracker</h1>
-          <p className="text-slate-600">Track your progress over time</p>
+          <h1 className="text-2xl font-bold text-amber-950">Weight Tracker</h1>
+          <p className="text-amber-800/70">Track your progress over time</p>
         </div>
       </div>
 
       {/* Current Weight & Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <Scale className="h-5 w-5 mx-auto text-blue-500 mb-2" />
-          <div className="text-2xl font-bold text-slate-900">
+          <Scale className="h-5 w-5 mx-auto text-amber-600 mb-2" />
+          <div className="text-2xl font-bold text-amber-950">
             {currentWeight ? `${currentWeight.toFixed(1)}` : "—"}
           </div>
-          <div className="text-xs text-slate-500">Current (kg)</div>
+          <div className="text-xs text-amber-700/60">Current (kg)</div>
         </Card>
 
         <Card className="p-4 text-center">
           <div className="mx-auto mb-2">{getTrendIcon(weightChange)}</div>
-          <div className="text-lg font-bold text-slate-900">
+          <div className="text-lg font-bold text-amber-950">
             {formatChange(weightChange)}
           </div>
-          <div className="text-xs text-slate-500">vs Last Entry</div>
+          <div className="text-xs text-amber-700/60">vs Last Entry</div>
         </Card>
 
         <Card className="p-4 text-center">
-          <Calendar className="h-5 w-5 mx-auto text-purple-500 mb-2" />
-          <div className="text-lg font-bold text-slate-900">
+          <Calendar className="h-5 w-5 mx-auto text-orange-500 mb-2" />
+          <div className="text-lg font-bold text-amber-950">
             {formatChange(monthlyChange)}
           </div>
-          <div className="text-xs text-slate-500">This Month</div>
+          <div className="text-xs text-amber-700/60">This Month</div>
         </Card>
 
         <Dialog open={goalDialogOpen} onOpenChange={setGoalDialogOpen}>
           <DialogTrigger asChild>
             <Card className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow relative group">
               <Target className="h-5 w-5 mx-auto text-amber-500 mb-2" />
-              <div className="text-lg font-bold text-slate-900">
+              <div className="text-lg font-bold text-amber-950">
                 {goalWeight ? `${goalWeight} kg` : "Not set"}
               </div>
-              <div className="text-xs text-slate-500">Goal Weight</div>
-              <Pencil className="h-3 w-3 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="text-xs text-amber-700/60">Goal Weight</div>
+              <Pencil className="h-3 w-3 absolute top-2 right-2 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Card>
           </DialogTrigger>
           <DialogContent>

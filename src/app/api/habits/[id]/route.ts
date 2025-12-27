@@ -63,8 +63,6 @@ export async function PATCH(
       description: body.description,
       icon: body.icon,
       color: body.color,
-      creditsToEarn: body.creditsToEarn,
-      completionsForCredit: body.completionsForCredit,
       frequency: body.frequency,
       targetDays: body.targetDays,
       isArchived: body.isArchived,

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getMilestonesReached } from "@/types/diorama";
 
 // Get today at UTC midnight
 function getTodayUTC(): Date {
@@ -65,19 +66,20 @@ export async function POST(
     }
   }
 
-  // Calculate credits based on current streak only
-  const creditsFromStreak = Math.floor(currentStreak / habit.completionsForCredit) * habit.creditsToEarn;
-  const completionCount = currentStreak % habit.completionsForCredit;
+  // Calculate credits based on milestones reached
+  const milestonesReached = getMilestonesReached(currentStreak);
+  const creditsFromMilestones = milestonesReached.reduce((sum, m) => sum + m.bonusCredits, 0);
+
+  // Keep existing credits if they're higher (user already earned them before)
+  const newCredits = Math.max(habit.currentCredits, creditsFromMilestones);
 
   // Update habit with recalculated values
-  // Set credits to creditsFromStreak (recalculating from scratch based on consecutive streak)
   const updatedHabit = await prisma.habit.update({
     where: { id },
     data: {
       currentStreak,
       longestStreak: Math.max(habit.longestStreak, currentStreak),
-      completionCount,
-      currentCredits: creditsFromStreak,
+      currentCredits: newCredits,
       lastCompletedAt: allCompletions[0]?.date || null,
     },
   });
@@ -86,10 +88,10 @@ export async function POST(
     habit: updatedHabit,
     recalculated: {
       previousCredits: habit.currentCredits,
-      newCredits: creditsFromStreak,
+      newCredits,
       previousStreak: habit.currentStreak,
       newStreak: currentStreak,
-      completionCount,
+      milestonesReached: milestonesReached.length,
     },
   });
 }

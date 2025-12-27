@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import {
   Check,
   Flame,
@@ -14,21 +13,35 @@ import {
   MoreVertical,
   Undo2,
   Calendar,
+  Edit,
+  Archive,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Habit, HabitCompletion } from "@prisma/client";
 
+interface MilestoneData {
+  name: string;
+  emoji: string;
+  description: string;
+  bonusCredits: number;
+}
+
 interface HabitCardProps {
   habit: Habit & { completions: HabitCompletion[] };
   isCompleted: boolean;
-  onComplete: (habitId: string, completion: HabitCompletion, updatedHabit: Habit) => void;
+  onComplete: (habitId: string, completion: HabitCompletion, updatedHabit: Habit, milestoneReached?: MilestoneData | null) => void;
   onUncomplete: (habitId: string) => void;
+  onEdit?: (habit: Habit & { completions: HabitCompletion[] }) => void;
+  onArchive?: (habitId: string) => void;
+  onDelete?: (habitId: string) => void;
 }
 
 // Legacy icon mapping for backward compatibility with old data
@@ -61,12 +74,14 @@ export function HabitCard({
   isCompleted,
   onComplete,
   onUncomplete,
+  onEdit,
+  onArchive,
+  onDelete,
 }: HabitCardProps) {
   const [loading, setLoading] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
   const icon = getDisplayIcon(habit.icon);
-  const creditProgress = (habit.completionCount / habit.completionsForCredit) * 100;
 
   const handleComplete = async (useCredit = false) => {
     if (loading) return;
@@ -86,15 +101,16 @@ export function HabitCard({
         return;
       }
 
-      onComplete(habit.id, data.completion, data.habit);
+      onComplete(habit.id, data.completion, data.habit, data.milestoneReached);
 
-      // Show celebration
+      // Show celebration animation on the card
       setShowCelebration(true);
       setTimeout(() => setShowCelebration(false), 1000);
 
-      if (data.creditEarned) {
-        toast.success("You earned a credit! 🎉", {
-          description: `Keep going to earn more skips!`,
+      if (data.milestoneReached) {
+        // Milestone celebration is handled by parent component
+        toast.success(`${data.milestoneReached.emoji} ${data.milestoneReached.name}!`, {
+          description: `+${data.milestoneReached.bonusCredits} credit${data.milestoneReached.bonusCredits > 1 ? 's' : ''} earned!`,
         });
       } else if (useCredit) {
         toast.success("Credit used! Streak preserved 🛡️");
@@ -171,7 +187,7 @@ export function HabitCard({
           {/* Content - Clickable to go to detail view */}
           <Link href={`/dashboard/habits/${habit.id}`} className="flex-1 min-w-0 cursor-pointer">
             <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-slate-900 truncate hover:text-indigo-600 transition-colors">
+              <h3 className="font-semibold text-amber-950 truncate hover:text-amber-700 transition-colors">
                 {habit.name}
               </h3>
               {habit.currentStreak > 0 && (
@@ -185,19 +201,13 @@ export function HabitCard({
               )}
             </div>
 
-            {/* Credit Progress */}
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex-1">
-                <Progress value={creditProgress} className="h-2" />
-              </div>
-              <div className="flex items-center gap-1 text-xs text-slate-500">
+            {/* Credits available */}
+            {habit.currentCredits > 0 && (
+              <div className="mt-1 flex items-center gap-1 text-xs text-amber-700/60">
                 <Coins className="h-3 w-3 text-amber-500" />
-                <span className="font-medium">{habit.currentCredits}</span>
+                <span>{habit.currentCredits} credit{habit.currentCredits > 1 ? 's' : ''} available</span>
               </div>
-            </div>
-            <p className="text-xs text-slate-500 mt-1">
-              {habit.completionCount}/{habit.completionsForCredit} to next credit
-            </p>
+            )}
           </Link>
 
           {/* Actions */}
@@ -228,7 +238,7 @@ export function HabitCard({
                 )}
                 <Button
                   size="icon"
-                  className="h-10 w-10 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+                  className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
                   onClick={() => handleComplete(false)}
                   disabled={loading}
                 >
@@ -256,6 +266,12 @@ export function HabitCard({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {onEdit && (
+                  <DropdownMenuItem onClick={() => onEdit(habit)}>
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem asChild>
                   <Link href={`/dashboard/habits/${habit.id}`}>
                     <Calendar className="mr-2 h-4 w-4" />
@@ -266,6 +282,24 @@ export function HabitCard({
                   <DropdownMenuItem onClick={handleUncomplete}>
                     <Undo2 className="mr-2 h-4 w-4" />
                     Undo completion
+                  </DropdownMenuItem>
+                )}
+                {onArchive && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => onArchive(habit.id)}>
+                      <Archive className="mr-2 h-4 w-4" />
+                      Archive
+                    </DropdownMenuItem>
+                  </>
+                )}
+                {onDelete && (
+                  <DropdownMenuItem
+                    className="text-red-600"
+                    onClick={() => onDelete(habit.id)}
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

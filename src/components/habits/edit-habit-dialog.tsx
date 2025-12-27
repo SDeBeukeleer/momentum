@@ -20,16 +20,16 @@ const SUGGESTED_EMOJIS = [
 ];
 
 const COLORS = [
-  "#6366f1",
-  "#8b5cf6",
-  "#ec4899",
-  "#ef4444",
-  "#f97316",
-  "#eab308",
-  "#22c55e",
-  "#14b8a6",
-  "#06b6d4",
-  "#3b82f6",
+  "#d97706", // Amber
+  "#ea580c", // Orange
+  "#dc2626", // Red
+  "#db2777", // Pink
+  "#9333ea", // Purple
+  "#2563eb", // Blue
+  "#0891b2", // Cyan
+  "#059669", // Emerald
+  "#65a30d", // Lime
+  "#ca8a04", // Yellow
 ];
 
 interface EditHabitDialogProps {
@@ -49,10 +49,6 @@ export function EditHabitDialog({
   const [icon, setIcon] = useState(habit.icon);
   const [color, setColor] = useState(habit.color);
   const [customEmoji, setCustomEmoji] = useState("");
-  const [completionsForCredit, setCompletionsForCredit] = useState(
-    habit.completionsForCredit
-  );
-  const [creditsToEarn, setCreditsToEarn] = useState(habit.creditsToEarn);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,8 +68,6 @@ export function EditHabitDialog({
           name: name.trim(),
           icon,
           color,
-          completionsForCredit,
-          creditsToEarn,
         }),
       });
 
@@ -126,12 +120,12 @@ export function EditHabitDialog({
                 className="flex-1"
               />
               <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-slate-100 border-2 border-slate-200"
+                className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 border-2 border-amber-200"
               >
                 {icon}
               </div>
             </div>
-            <p className="text-xs text-slate-500 mb-2">Or pick from suggestions:</p>
+            <p className="text-xs text-amber-700/60 mb-2">Or pick from suggestions:</p>
             <div className="grid grid-cols-10 gap-1">
               {SUGGESTED_EMOJIS.map((emoji) => (
                 <motion.button
@@ -145,8 +139,8 @@ export function EditHabitDialog({
                   }}
                   className={`h-9 rounded-lg text-lg transition-all ${
                     icon === emoji
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 shadow-md"
-                      : "bg-slate-100 hover:bg-slate-200"
+                      ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
+                      : "bg-amber-50 hover:bg-amber-100"
                   }`}
                 >
                   {emoji}
@@ -174,31 +168,12 @@ export function EditHabitDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="completions">Completions for credit</Label>
-              <Input
-                id="completions"
-                type="number"
-                min={1}
-                value={completionsForCredit}
-                onChange={(e) =>
-                  setCompletionsForCredit(parseInt(e.target.value) || 1)
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="credits">Credits earned</Label>
-              <Input
-                id="credits"
-                type="number"
-                min={1}
-                value={creditsToEarn}
-                onChange={(e) =>
-                  setCreditsToEarn(parseInt(e.target.value) || 1)
-                }
-              />
-            </div>
+          {/* Info about credits */}
+          <div className="p-4 bg-amber-50/50 rounded-lg">
+            <p className="text-sm text-amber-800/70">
+              Earn credits by hitting milestones (7, 14, 30, 50, 100+ days).
+              Use credits to skip days without breaking your streak!
+            </p>
           </div>
 
           <div className="flex gap-3">
@@ -212,7 +187,7 @@ export function EditHabitDialog({
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+              className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
               disabled={loading}
             >
               {loading ? (

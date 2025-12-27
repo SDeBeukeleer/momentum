@@ -21,8 +21,8 @@ model User {
 
   habits        Habit[]
   weightLogs    WeightLog[]
-  activityLogs  ActivityLog[]
   badges        UserBadge[]
+  guidances     UserGuidance[]
 }
 
 model Habit {
@@ -32,14 +32,11 @@ model Habit {
 
   name                  String
   description           String?
-  icon                  String    @default("target")
-  color                 String    @default("#6366f1")
+  icon                  String    @default("🎯")
+  color                 String    @default("#d97706")
 
-  // Credit system configuration
-  creditsToEarn         Int       @default(1)
-  completionsForCredit  Int       @default(10)
+  // Credits earned from milestones
   currentCredits        Int       @default(0)
-  completionCount       Int       @default(0)
 
   // Streak tracking
   currentStreak         Int       @default(0)
@@ -55,8 +52,56 @@ model Habit {
   updatedAt             DateTime  @updatedAt
 
   completions           HabitCompletion[]
+  diorama               Diorama?
+  gardenSnapshots       GardenSnapshot[]
 
   @@index([userId])
+}
+
+// Living Diorama - 3D visualization of habit streaks
+model Diorama {
+  id                 String   @id @default(cuid())
+  habitId            String   @unique
+  habit              Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  // Plant state (0-7: seed → mythic)
+  plantStage         Int      @default(0)
+  plantVariant       String   @default("default")
+  growthProgress     Float    @default(0)  // 0-1 progress within current stage
+
+  // World state (0-4: barren → paradise)
+  worldTier          Int      @default(0)
+  lightingMode       String   @default("day")  // day, golden, twilight, night, winter
+
+  // Visual accumulation
+  accumulatedProps   Json     @default("[]")
+  particleConfig     Json     @default("{}")
+
+  // Milestone tracking
+  unlockedMilestones Int[]    @default([])
+
+  // Reset state
+  isInResetMode      Boolean  @default(false)
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+// Snapshots of past garden states (for Garden History)
+model GardenSnapshot {
+  id             String   @id @default(cuid())
+  habitId        String
+  habit          Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  streakLength   Int
+  plantStage     Int
+  worldTier      Int
+  dioramaState   Json     // Full serialized state for recreation
+
+  achievedAt     DateTime @default(now())
+  endReason      String?  // "streak_break", "habit_deleted", etc.
+
+  @@index([habitId])
 }
 
 model HabitCompletion {
@@ -91,24 +136,6 @@ model WeightLog {
   @@index([userId])
 }
 
-model ActivityLog {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  activityType  String
-  date          DateTime @db.Date
-  duration      Int?
-  distance      Float?
-  notes         String?
-  metrics       Json?
-
-  createdAt     DateTime @default(now())
-
-  @@index([userId])
-  @@index([date])
-}
-
 model Badge {
   id          String      @id @default(cuid())
   name        String
@@ -129,5 +156,18 @@ model UserBadge {
   earnedAt  DateTime @default(now())
 
   @@unique([userId, badgeId])
+  @@index([userId])
+}
+
+// User guidance pop-ups - tracks what has been shown
+model UserGuidance {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  guidanceKey  String   // e.g., "first_habit", "streak_7", "garden_discovery"
+  shownAt      DateTime @default(now())
+
+  @@unique([userId, guidanceKey])
   @@index([userId])
 }

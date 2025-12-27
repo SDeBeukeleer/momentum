@@ -15,13 +15,11 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Home,
-  Target,
   Scale,
-  Activity,
-  Trophy,
   LogOut,
   User,
   BarChart3,
+  Sprout,
 } from "lucide-react";
 
 interface NavbarProps {
@@ -32,12 +30,10 @@ interface NavbarProps {
 }
 
 const navItems = [
-  { href: "/dashboard", label: "Today", icon: Home },
-  { href: "/dashboard/habits", label: "Habits", icon: Target },
+  { href: "/dashboard", label: "Home", icon: Home },
+  { href: "/garden", label: "Garden", icon: Sprout },
   { href: "/dashboard/weight", label: "Weight", icon: Scale },
-  { href: "/dashboard/activities", label: "Activities", icon: Activity },
-  { href: "/dashboard/stats", label: "Stats", icon: BarChart3 },
-  { href: "/dashboard/achievements", label: "Achievements", icon: Trophy },
+  { href: "/dashboard/progress", label: "Progress", icon: BarChart3 },
 ];
 
 export function Navbar({ user }: NavbarProps) {
@@ -47,13 +43,13 @@ export function Navbar({ user }: NavbarProps) {
     <>
       {/* Desktop Sidebar */}
       <aside className="hidden md:fixed md:inset-y-0 md:left-0 md:flex md:w-64 md:flex-col">
-        <div className="flex min-h-0 flex-1 flex-col bg-white border-r border-slate-200">
-          <div className="flex h-16 items-center px-6 border-b border-slate-200">
+        <div className="flex min-h-0 flex-1 flex-col bg-amber-50/50 border-r border-amber-200/60">
+          <div className="flex h-16 items-center px-6 border-b border-amber-200/60">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center">
                 <span className="text-white font-bold text-lg">M</span>
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
                 Momentum
               </span>
             </Link>
@@ -71,8 +67,8 @@ export function Navbar({ user }: NavbarProps) {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
                     isActive
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                      ? "bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-md"
+                      : "text-amber-900/70 hover:bg-amber-100/50 hover:text-amber-900"
                   )}
                 >
                   <item.icon className="h-5 w-5" />
@@ -82,7 +78,7 @@ export function Navbar({ user }: NavbarProps) {
             })}
           </nav>
 
-          <div className="border-t border-slate-200 p-4">
+          <div className="border-t border-amber-200/60 p-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -90,13 +86,13 @@ export function Navbar({ user }: NavbarProps) {
                   className="w-full justify-start gap-3 h-auto py-2"
                 >
                   <Avatar className="h-8 w-8">
-                    <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                    <AvatarFallback className="bg-gradient-to-br from-amber-600 to-orange-600 text-white">
                       {user.name?.charAt(0) || user.email?.charAt(0) || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex flex-col items-start text-sm">
-                    <span className="font-medium">{user.name || "User"}</span>
-                    <span className="text-xs text-slate-500">{user.email}</span>
+                  <div className="flex flex-col items-start text-sm min-w-0 flex-1">
+                    <span className="font-medium truncate w-full">{user.name || "User"}</span>
+                    <span className="text-xs text-amber-700/60 truncate w-full">{user.email}</span>
                   </div>
                 </Button>
               </DropdownMenuTrigger>
@@ -120,9 +116,9 @@ export function Navbar({ user }: NavbarProps) {
       </aside>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-amber-50/95 backdrop-blur-sm border-t border-amber-200/60 md:hidden">
         <div className="flex items-center justify-around h-16">
-          {navItems.slice(0, 5).map((item) => {
+          {navItems.map((item) => {
             const isActive =
               pathname === item.href ||
               (item.href !== "/dashboard" && pathname.startsWith(item.href));
@@ -133,12 +129,12 @@ export function Navbar({ user }: NavbarProps) {
                 className={cn(
                   "flex flex-col items-center justify-center gap-1 px-3 py-2 rounded-lg transition-colors",
                   isActive
-                    ? "text-indigo-600"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "text-amber-700"
+                    : "text-amber-600/60 hover:text-amber-800"
                 )}
               >
                 <item.icon
-                  className={cn("h-5 w-5", isActive && "text-indigo-600")}
+                  className={cn("h-5 w-5", isActive && "text-amber-700")}
                 />
                 <span className="text-xs font-medium">{item.label}</span>
               </Link>
@@ -148,13 +144,13 @@ export function Navbar({ user }: NavbarProps) {
       </nav>
 
       {/* Mobile Header */}
-      <header className="sticky top-0 z-40 bg-white border-b border-slate-200 md:hidden">
+      <header className="sticky top-0 z-40 bg-amber-50/95 backdrop-blur-sm border-b border-amber-200/60 md:hidden">
         <div className="flex items-center justify-between h-14 px-4">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-br from-amber-600 to-orange-700 flex items-center justify-center">
               <span className="text-white font-bold text-sm">M</span>
             </div>
-            <span className="text-lg font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            <span className="text-lg font-bold bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
               Momentum
             </span>
           </Link>
@@ -163,7 +159,7 @@ export function Navbar({ user }: NavbarProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-indigo-500 to-purple-600 text-white text-sm">
+                  <AvatarFallback className="bg-gradient-to-br from-amber-600 to-orange-600 text-white text-sm">
                     {user.name?.charAt(0) || user.email?.charAt(0) || "U"}
                   </AvatarFallback>
                 </Avatar>
@@ -172,7 +168,7 @@ export function Navbar({ user }: NavbarProps) {
             <DropdownMenuContent align="end" className="w-56">
               <div className="px-2 py-1.5">
                 <p className="text-sm font-medium">{user.name || "User"}</p>
-                <p className="text-xs text-slate-500">{user.email}</p>
+                <p className="text-xs text-amber-700/60">{user.email}</p>
               </div>
               <DropdownMenuSeparator />
               <DropdownMenuItem>

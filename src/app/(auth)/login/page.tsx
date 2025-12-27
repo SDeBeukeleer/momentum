@@ -54,11 +54,11 @@ export default function LoginPage() {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15 }}
-            className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center"
+            className="mx-auto mb-4 h-16 w-16 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center"
           >
             <span className="text-3xl">🚀</span>
           </motion.div>
-          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-amber-700 to-orange-600 bg-clip-text text-transparent">
             Welcome to Momentum
           </CardTitle>
           <CardDescription>
@@ -102,7 +102,7 @@ export default function LoginPage() {
             </div>
             <Button
               type="submit"
-              className="w-full h-11 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 transition-all duration-300"
+              className="w-full h-11 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 transition-all duration-300"
               disabled={loading}
             >
               {loading ? (
@@ -120,7 +120,7 @@ export default function LoginPage() {
             <span className="text-gray-600">Don&apos;t have an account? </span>
             <Link
               href="/register"
-              className="font-semibold text-indigo-600 hover:text-indigo-500"
+              className="font-semibold text-amber-700 hover:text-amber-600"
             >
               Sign up
             </Link>
