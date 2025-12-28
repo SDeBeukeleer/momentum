@@ -98,7 +98,7 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
 
           {/* Celebration Card */}
           <motion.div
-            className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-sm mx-4 text-center"
+            className="relative bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-[calc(100%-2rem)] max-w-sm text-center"
             initial={{ scale: 0, rotate: -10 }}
             animate={{ scale: 1, rotate: 0 }}
             exit={{ scale: 0, rotate: 10 }}

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { PWARegister } from "@/components/pwa-register";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -50,11 +51,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <PWARegister />
         {children}
       </body>
     </html>
