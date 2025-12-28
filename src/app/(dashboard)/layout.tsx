@@ -1,9 +1,9 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Navbar } from "@/components/layout/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { prisma } from "@/lib/prisma";
 import { GuidanceProvider } from "@/components/guidance";
+import { DashboardShell } from "@/components/layout/dashboard-shell";
 
 export default async function DashboardLayout({
   children,
@@ -39,10 +39,9 @@ export default async function DashboardLayout({
         maxStreak={maxStreak}
         totalCredits={totalCredits}
       >
-        <Navbar user={session.user} />
-        <main className="pb-20 md:pb-6 md:pl-64">
-          <div className="container mx-auto px-4 py-6">{children}</div>
-        </main>
+        <DashboardShell user={session.user}>
+          {children}
+        </DashboardShell>
         <Toaster position="top-center" richColors />
       </GuidanceProvider>
     </div>

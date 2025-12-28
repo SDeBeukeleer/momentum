@@ -1,7 +1,5 @@
-const CACHE_NAME = 'momentum-v1';
-const urlsToCache = [
-  '/',
-  '/dashboard',
+const CACHE_NAME = 'momentum-v2';
+const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
@@ -9,7 +7,7 @@ const urlsToCache = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
   self.skipWaiting();
 });
@@ -30,24 +28,31 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Network-first strategy for API calls
-  if (event.request.url.includes('/api/')) {
+  const url = new URL(event.request.url);
+
+  // Skip non-GET requests
+  if (event.request.method !== 'GET') return;
+
+  // Network-first for HTML pages and API calls
+  if (event.request.mode === 'navigate' || url.pathname.startsWith('/api/')) {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match(event.request))
+      fetch(event.request).catch(() => {
+        return caches.match('/offline.html') || new Response('Offline', { status: 503 });
+      })
     );
     return;
   }
 
-  // Cache-first for static assets
-  event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request).then((fetchResponse) => {
-        // Don't cache non-successful responses
-        if (!fetchResponse || fetchResponse.status !== 200) {
-          return fetchResponse;
-        }
-        return fetchResponse;
-      });
-    })
-  );
+  // Cache-first for static assets only
+  if (url.pathname.match(/\.(png|jpg|jpeg|svg|ico|woff2?|css|js)$/)) {
+    event.respondWith(
+      caches.match(event.request).then((response) => {
+        return response || fetch(event.request);
+      })
+    );
+    return;
+  }
+
+  // Network-first for everything else
+  event.respondWith(fetch(event.request));
 });

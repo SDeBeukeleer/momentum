@@ -137,11 +137,123 @@ NEXTAUTH_URL="http://localhost:3000"
 
 ## Deployment
 
-The app is optimized for deployment on Vercel:
+### Production URL
+
+**Live at:** https://momentum.lolala.be
+
+### Local Development
+
+```bash
+npm run dev
+```
+
+### Production Build
 
 ```bash
 npm run build
 ```
+
+### Docker Deployment (Hetzner)
+
+The app is deployed on a Hetzner server using Docker Compose.
+
+#### Server Setup
+
+1. **SSH into the server**
+```bash
+ssh root@91.99.160.39
+```
+
+2. **Navigate to the project**
+```bash
+cd /opt/momentum
+```
+
+3. **Environment variables** (`.env` file)
+```env
+DB_PASSWORD=your-secure-password
+NEXTAUTH_SECRET=your-secret-key
+NEXTAUTH_URL=https://momentum.lolala.be
+```
+
+4. **Start the containers**
+```bash
+docker compose -f docker-compose.prod.yml up -d
+```
+
+5. **View logs**
+```bash
+docker logs -f momentum-app
+```
+
+#### Docker Architecture
+
+```
+┌─────────────────────────────────────────────────┐
+│                   Hetzner VPS                   │
+│                  91.99.160.39                   │
+├─────────────────────────────────────────────────┤
+│  Nginx (port 80/443)                            │
+│    └── SSL via Let's Encrypt                    │
+│    └── Reverse proxy to :3001                   │
+├─────────────────────────────────────────────────┤
+│  Docker Compose                                 │
+│    ├── momentum-app (Next.js) → port 3001      │
+│    └── momentum-db (PostgreSQL 16)              │
+└─────────────────────────────────────────────────┘
+```
+
+#### Deploying Updates
+
+```bash
+# From local machine
+rsync -avz --progress ./ root@91.99.160.39:/opt/momentum/ \
+  --exclude node_modules --exclude .next --exclude .git
+
+# On server
+ssh root@91.99.160.39
+cd /opt/momentum
+docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml build --no-cache
+docker compose -f docker-compose.prod.yml up -d
+```
+
+#### SSL Certificate
+
+- **Provider:** Let's Encrypt via Certbot
+- **Auto-renewal:** Enabled (certbot scheduled task)
+- **Expiry:** Auto-renews before expiration
+- **Config:** `/etc/nginx/sites-available/momentum`
+
+#### Database Management
+
+```bash
+# Access PostgreSQL
+docker exec -it momentum-db psql -U momentum -d momentum
+
+# Run migrations (from app container)
+docker exec -it momentum-app npx prisma db push
+
+# Backup database
+docker exec momentum-db pg_dump -U momentum momentum > backup.sql
+```
+
+### Vercel Deployment (Alternative)
+
+The app is also optimized for Vercel deployment:
+
+```bash
+npm run build
+vercel --prod
+```
+
+## DNS Configuration
+
+| Record | Type | Name | Value |
+|--------|------|------|-------|
+| A | momentum | 91.99.160.39 | Points subdomain to Hetzner server |
+
+Domain managed at GoDaddy (lolala.be).
 
 ## License
 
