@@ -154,10 +154,10 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
   };
 
   const getTrendIcon = (change: number | null) => {
-    if (change === null) return <Minus className="h-4 w-4 text-amber-400" />;
-    if (change < 0) return <TrendingDown className="h-4 w-4 text-green-500" />;
-    if (change > 0) return <TrendingUp className="h-4 w-4 text-red-500" />;
-    return <Minus className="h-4 w-4 text-amber-400" />;
+    if (change === null) return <Minus className="h-4 w-4 text-slate-400" />;
+    if (change < 0) return <TrendingDown className="h-4 w-4 text-emerald-500" />;
+    if (change > 0) return <TrendingUp className="h-4 w-4 text-amber-500" />;
+    return <Minus className="h-4 w-4 text-slate-400" />;
   };
 
   const formatChange = (change: number | null) => {
@@ -170,59 +170,59 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-          <Scale className="h-6 w-6 text-white" />
+        <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+          <Scale className="h-6 w-6 text-indigo-600" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-amber-950">Weight Tracker</h1>
-          <p className="text-amber-800/70">Track your progress over time</p>
+          <h1 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-fraunces)' }}>Weight Tracker</h1>
+          <p className="text-slate-500">Track your progress over time</p>
         </div>
       </div>
 
       {/* Current Weight & Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <Scale className="h-5 w-5 mx-auto text-amber-600 mb-2" />
-          <div className="text-2xl font-bold text-amber-950">
+          <Scale className="h-5 w-5 mx-auto text-indigo-600 mb-2" />
+          <div className="text-2xl font-bold text-slate-900">
             {currentWeight ? `${currentWeight.toFixed(1)}` : "—"}
           </div>
-          <div className="text-xs text-amber-700/60">Current (kg)</div>
+          <div className="text-xs text-slate-500">Current (kg)</div>
         </Card>
 
         <Card className="p-4 text-center">
           <div className="mx-auto mb-2">{getTrendIcon(weightChange)}</div>
-          <div className="text-lg font-bold text-amber-950">
+          <div className="text-lg font-bold text-slate-900">
             {formatChange(weightChange)}
           </div>
-          <div className="text-xs text-amber-700/60">vs Last Entry</div>
+          <div className="text-xs text-slate-500">vs Last Entry</div>
         </Card>
 
         <Card className="p-4 text-center">
-          <Calendar className="h-5 w-5 mx-auto text-orange-500 mb-2" />
-          <div className="text-lg font-bold text-amber-950">
+          <Calendar className="h-5 w-5 mx-auto text-amber-500 mb-2" />
+          <div className="text-lg font-bold text-slate-900">
             {formatChange(monthlyChange)}
           </div>
-          <div className="text-xs text-amber-700/60">This Month</div>
+          <div className="text-xs text-slate-500">This Month</div>
         </Card>
 
         <Dialog open={goalDialogOpen} onOpenChange={setGoalDialogOpen}>
           <DialogTrigger asChild>
-            <Card className="p-4 text-center cursor-pointer hover:shadow-md transition-shadow relative group">
+            <Card className="p-4 text-center cursor-pointer hover:border-indigo-200 transition-all relative group">
               <Target className="h-5 w-5 mx-auto text-amber-500 mb-2" />
-              <div className="text-lg font-bold text-amber-950">
+              <div className="text-lg font-bold text-slate-900">
                 {goalWeight ? `${goalWeight} kg` : "Not set"}
               </div>
-              <div className="text-xs text-amber-700/60">Goal Weight</div>
-              <Pencil className="h-3 w-3 absolute top-2 right-2 text-amber-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="text-xs text-slate-500">Goal Weight</div>
+              <Pencil className="h-3 w-3 absolute top-2 right-2 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Card>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Set Goal Weight</DialogTitle>
+              <DialogTitle className="text-slate-900">Set Goal Weight</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSaveGoal} className="space-y-4">
               <div>
-                <Label htmlFor="goalWeight">Target Weight (kg)</Label>
+                <Label htmlFor="goalWeight" className="text-slate-700">Target Weight (kg)</Label>
                 <Input
                   id="goalWeight"
                   type="number"
@@ -247,7 +247,7 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
                 </Button>
                 <Button
                   type="submit"
-                  className="flex-1"
+                  className="flex-1 bg-indigo-600 hover:bg-indigo-700"
                   disabled={savingGoal}
                 >
                   {savingGoal ? "Saving..." : "Save Goal"}
@@ -262,7 +262,7 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
       <Card className="p-4">
         <form onSubmit={handleSubmit} className="flex gap-3 items-end">
           <div className="flex-1">
-            <Label htmlFor="weight">Log Today&apos;s Weight</Label>
+            <Label htmlFor="weight" className="text-slate-700">Log Today&apos;s Weight</Label>
             <Input
               id="weight"
               type="number"
@@ -273,7 +273,11 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
               className="mt-1"
             />
           </div>
-          <Button type="submit" disabled={loading || !weight}>
+          <Button
+            type="submit"
+            disabled={loading || !weight}
+            className="bg-indigo-600 hover:bg-indigo-700"
+          >
             {loading ? "Saving..." : "Log Weight"}
           </Button>
         </form>
@@ -282,11 +286,11 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
       {/* Weight Chart */}
       {chartData.length > 0 && (
         <Card className="p-4">
-          <h3 className="font-semibold mb-4">Weight Trend</h3>
+          <h3 className="font-semibold mb-4 text-slate-900">Weight Trend</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
                 <XAxis
                   dataKey="date"
                   tick={{ fontSize: 12 }}
@@ -299,9 +303,11 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#fff",
+                    backgroundColor: "#ffffff",
                     border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
+                    borderRadius: "12px",
+                    color: "#1e293b",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   }}
                 />
                 {goalWeight && (
@@ -315,10 +321,10 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
                 <Line
                   type="monotone"
                   dataKey="weight"
-                  stroke="#3b82f6"
+                  stroke="#4f46e5"
                   strokeWidth={2}
-                  dot={{ fill: "#3b82f6", strokeWidth: 2 }}
-                  activeDot={{ r: 6, fill: "#3b82f6" }}
+                  dot={{ fill: "#4f46e5", strokeWidth: 2 }}
+                  activeDot={{ r: 6, fill: "#4f46e5" }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -328,7 +334,7 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
 
       {/* Recent Entries */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-4">Recent Entries</h3>
+        <h3 className="font-semibold mb-4 text-slate-900">Recent Entries</h3>
         {logs.length === 0 ? (
           <p className="text-slate-500 text-center py-4">
             No weight entries yet. Start logging!
@@ -356,16 +362,16 @@ export function WeightView({ initialLogs, goalWeight: initialGoalWeight }: Weigh
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-semibold">
+                    <span className="font-semibold text-slate-900">
                       {log.weight.toFixed(1)} kg
                     </span>
                     {change !== null && (
                       <span
                         className={`text-sm ${
                           change < 0
-                            ? "text-green-500"
+                            ? "text-emerald-500"
                             : change > 0
-                            ? "text-red-500"
+                            ? "text-amber-500"
                             : "text-slate-400"
                         }`}
                       >

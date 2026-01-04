@@ -33,7 +33,7 @@ export default async function DashboardLayout({
   const totalCredits = habits.reduce((sum, h) => sum + h.currentCredits, 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50/50 to-orange-50/30">
+    <div className="min-h-screen bg-background">
       <GuidanceProvider
         habitCount={habitCount}
         maxStreak={maxStreak}

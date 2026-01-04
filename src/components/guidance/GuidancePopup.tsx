@@ -37,12 +37,12 @@ export function GuidancePopup({ guidance, onDismiss }: GuidancePopupProps) {
       const timer = setTimeout(() => {
         setIsVisible(true);
         if (guidance.celebrate) {
-          // Fire confetti
+          // Fire confetti - indigo palette
           confetti({
             particleCount: 100,
             spread: 70,
             origin: { y: 0.6 },
-            colors: ['#d97706', '#ea580c', '#f59e0b', '#fbbf24'],
+            colors: ['#4f46e5', '#6366f1', '#818cf8', '#a855f7', '#f59e0b'],
           });
         }
       }, 300);
@@ -90,7 +90,7 @@ export function GuidancePopup({ guidance, onDismiss }: GuidancePopupProps) {
           >
             <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               {/* Header gradient */}
-              <div className="bg-gradient-to-r from-amber-500 to-orange-500 px-6 py-4 relative">
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-6 py-4 relative">
                 <button
                   onClick={handleDismiss}
                   className="absolute right-3 top-3 text-white/80 hover:text-white transition-colors"
@@ -107,7 +107,7 @@ export function GuidancePopup({ guidance, onDismiss }: GuidancePopupProps) {
 
               {/* Content */}
               <div className="px-6 py-5">
-                <p className="text-amber-900/80 leading-relaxed">
+                <p className="text-slate-600 leading-relaxed">
                   {guidance.message}
                 </p>
               </div>
@@ -127,7 +127,7 @@ export function GuidancePopup({ guidance, onDismiss }: GuidancePopupProps) {
                   </Button>
                 )}
                 <Button
-                  className={`${guidance.secondaryAction ? 'flex-1' : 'w-full'} bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700`}
+                  className={`${guidance.secondaryAction ? 'flex-1' : 'w-full'} bg-indigo-600 hover:bg-indigo-700`}
                   onClick={handlePrimaryAction}
                 >
                   {guidance.primaryAction?.label || 'Got it!'}

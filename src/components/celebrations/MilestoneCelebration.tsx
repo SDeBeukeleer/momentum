@@ -49,8 +49,8 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
 
   useEffect(() => {
     if (milestone) {
-      // Generate confetti particles
-      const colors = ['#f59e0b', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899'];
+      // Generate confetti particles - indigo palette
+      const colors = ['#4f46e5', '#6366f1', '#818cf8', '#a855f7', '#f59e0b', '#fbbf24'];
       const newParticles = Array.from({ length: 50 }, (_, i) => ({
         id: i,
         delay: Math.random() * 0.5,
@@ -125,7 +125,7 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
 
             {/* Title */}
             <motion.h2
-              className="text-2xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mb-2"
+              className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -135,7 +135,7 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
 
             {/* Description */}
             <motion.p
-              className="text-amber-800/70 mb-4"
+              className="text-slate-600 mb-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -145,13 +145,13 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
 
             {/* Bonus Credits */}
             <motion.div
-              className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl p-4 border border-amber-200"
+              className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-4 border border-indigo-200"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <div className="text-sm text-amber-700/70 mb-1">Bonus Reward</div>
-              <div className="text-2xl font-bold text-amber-700">
+              <div className="text-sm text-indigo-600/70 mb-1">Bonus Reward</div>
+              <div className="text-2xl font-bold text-indigo-700">
                 +{milestone.bonusCredits} Credit{milestone.bonusCredits > 1 ? 's' : ''}
               </div>
             </motion.div>
@@ -163,7 +163,7 @@ export function MilestoneCelebration({ milestone, onClose }: MilestoneCelebratio
               transition={{ delay: 0.7 }}
             >
               <Button
-                className="mt-6 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+                className="mt-6 bg-indigo-600 hover:bg-indigo-700"
                 onClick={onClose}
               >
                 Awesome!

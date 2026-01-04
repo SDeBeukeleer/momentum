@@ -4,8 +4,6 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Check,
   Flame,
@@ -16,6 +14,7 @@ import {
   Edit,
   Archive,
   Trash2,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -25,6 +24,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { HabitIconDisplay } from "./habit-icons";
 import type { Habit, HabitCompletion } from "@prisma/client";
 
 interface MilestoneData {
@@ -44,29 +44,33 @@ interface HabitCardProps {
   onDelete?: (habitId: string) => void;
 }
 
-// Legacy icon mapping for backward compatibility with old data
-const legacyIconMap: Record<string, string> = {
-  target: "🎯",
-  exercise: "💪",
-  book: "📚",
-  meditation: "🧘",
-  water: "💧",
-  sleep: "😴",
-  healthy: "🥗",
-  coding: "💻",
-  writing: "✍️",
-  music: "🎵",
-  running: "🏃",
-  cycling: "🚴",
-  swimming: "🏊",
-  yoga: "🧘‍♀️",
-  weight: "🏋️",
-  default: "✨",
-};
+// Streak tier system for visual progression
+type StreakTier = 'none' | 'starter' | 'intermediate' | 'advanced' | 'epic' | 'legendary';
 
-// Get display emoji - handles both legacy icon keys and direct emojis
-function getDisplayIcon(icon: string): string {
-  return legacyIconMap[icon] || icon || "✨";
+function getStreakTier(streak: number): StreakTier {
+  if (streak >= 100) return 'legendary';
+  if (streak >= 50) return 'epic';
+  if (streak >= 30) return 'advanced';
+  if (streak >= 14) return 'intermediate';
+  if (streak >= 7) return 'starter';
+  return 'none';
+}
+
+function getStreakBadgeClasses(tier: StreakTier): string {
+  switch (tier) {
+    case 'legendary':
+      return 'streak-badge-legendary text-white animate-streak-shimmer';
+    case 'epic':
+      return 'streak-badge-epic text-slate-900 animate-streak-pulse';
+    case 'advanced':
+      return 'streak-badge-advanced text-white';
+    case 'intermediate':
+      return 'streak-badge-intermediate text-white';
+    case 'starter':
+      return 'streak-badge-starter text-white';
+    default:
+      return 'bg-slate-100 text-slate-600';
+  }
 }
 
 export function HabitCard({
@@ -81,7 +85,7 @@ export function HabitCard({
   const [loading, setLoading] = useState(false);
   const [showCelebration, setShowCelebration] = useState(false);
 
-  const icon = getDisplayIcon(habit.icon);
+  const streakTier = getStreakTier(habit.currentStreak);
 
   const handleComplete = async (useCredit = false) => {
     if (loading) return;
@@ -103,19 +107,17 @@ export function HabitCard({
 
       onComplete(habit.id, data.completion, data.habit, data.milestoneReached);
 
-      // Show celebration animation on the card
       setShowCelebration(true);
       setTimeout(() => setShowCelebration(false), 1000);
 
       if (data.milestoneReached) {
-        // Milestone celebration is handled by parent component
-        toast.success(`${data.milestoneReached.emoji} ${data.milestoneReached.name}!`, {
+        toast.success(`${data.milestoneReached.name}!`, {
           description: `+${data.milestoneReached.bonusCredits} credit${data.milestoneReached.bonusCredits > 1 ? 's' : ''} earned!`,
         });
       } else if (useCredit) {
-        toast.success("Credit used! Streak preserved 🛡️");
+        toast.success("Credit used! Streak preserved");
       } else {
-        toast.success("Habit completed! 🔥");
+        toast.success("Habit completed!");
       }
     } catch {
       toast.error("Something went wrong");
@@ -149,12 +151,14 @@ export function HabitCard({
   };
 
   return (
-    <Card
-      className={`relative overflow-hidden transition-all duration-300 ${
+    <motion.div
+      className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
         isCompleted
-          ? "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200"
-          : "bg-white hover:shadow-md"
+          ? "bg-indigo-50 border-indigo-200 shadow-md shadow-indigo-100"
+          : "bg-white border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300"
       }`}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
     >
       {/* Celebration Animation */}
       <AnimatePresence>
@@ -165,46 +169,60 @@ export function HabitCard({
             exit={{ scale: 2, opacity: 0 }}
             className="absolute inset-0 flex items-center justify-center pointer-events-none z-10"
           >
-            <span className="text-6xl">🎉</span>
+            <div className="relative">
+              <Sparkles className="h-16 w-16 text-indigo-500" />
+              <div className="absolute inset-0 animate-ping">
+                <Sparkles className="h-16 w-16 text-indigo-300" />
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <div className="p-4">
+      <div className="p-4 relative z-0">
         <div className="flex items-center gap-4">
-          {/* Icon */}
-          <div
-            className="h-12 w-12 rounded-xl flex items-center justify-center text-2xl shadow-sm"
-            style={{
-              backgroundColor: `${habit.color}15`,
-              borderColor: habit.color,
-              borderWidth: 2,
-            }}
+          {/* Icon Container */}
+          <motion.div
+            animate={isCompleted ? { scale: [1, 1.05, 1] } : {}}
+            transition={{ duration: 0.5 }}
+            className="relative"
           >
-            {icon}
-          </div>
+            <HabitIconDisplay
+              iconId={habit.icon}
+              size="md"
+              glowing={isCompleted}
+            />
+            {isCompleted && (
+              <motion.div
+                className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 flex items-center justify-center shadow-sm"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500 }}
+              >
+                <Check className="h-3 w-3 text-white" />
+              </motion.div>
+            )}
+          </motion.div>
 
-          {/* Content - Clickable to go to detail view */}
-          <Link href={`/dashboard/habits/${habit.id}`} className="flex-1 min-w-0 cursor-pointer">
-            <div className="flex items-center gap-2">
-              <h3 className="font-semibold text-amber-950 truncate hover:text-amber-700 transition-colors">
+          {/* Content */}
+          <Link href={`/dashboard/habits/${habit.id}`} className="flex-1 min-w-0 cursor-pointer group">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition-colors">
                 {habit.name}
               </h3>
               {habit.currentStreak > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="bg-orange-100 text-orange-700 gap-1"
+                <div
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${getStreakBadgeClasses(streakTier)}`}
                 >
                   <Flame className="h-3 w-3" />
                   {habit.currentStreak}
-                </Badge>
+                </div>
               )}
             </div>
 
-            {/* Credits available */}
             {habit.currentCredits > 0 && (
-              <div className="mt-1 flex items-center gap-1 text-xs text-amber-700/60">
-                <Coins className="h-3 w-3 text-amber-500" />
+              <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-500">
+                <Coins className="h-3.5 w-3.5 text-amber-500" />
                 <span>{habit.currentCredits} credit{habit.currentCredits > 1 ? 's' : ''} available</span>
               </div>
             )}
@@ -213,22 +231,28 @@ export function HabitCard({
           {/* Actions */}
           <div className="flex items-center gap-2">
             {isCompleted ? (
-              <Button
-                size="icon"
-                variant="ghost"
-                className="h-10 w-10 rounded-full bg-green-500 text-white hover:bg-green-600"
-                onClick={handleUncomplete}
-                disabled={loading}
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 400 }}
               >
-                <Check className="h-5 w-5" />
-              </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-11 w-11 rounded-full bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-200"
+                  onClick={handleUncomplete}
+                  disabled={loading}
+                >
+                  <Check className="h-5 w-5" />
+                </Button>
+              </motion.div>
             ) : (
               <>
                 {habit.currentCredits > 0 && (
                   <Button
                     size="sm"
                     variant="outline"
-                    className="gap-1 text-amber-600 border-amber-300 hover:bg-amber-50"
+                    className="gap-1.5 text-amber-600 border-amber-300 hover:bg-amber-50 hover:border-amber-400"
                     onClick={() => handleComplete(true)}
                     disabled={loading}
                   >
@@ -238,7 +262,7 @@ export function HabitCard({
                 )}
                 <Button
                   size="icon"
-                  className="h-10 w-10 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+                  className="h-11 w-11 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all"
                   onClick={() => handleComplete(false)}
                   disabled={loading}
                 >
@@ -250,7 +274,7 @@ export function HabitCard({
                         repeat: Infinity,
                         ease: "linear",
                       }}
-                      className="h-4 w-4 border-2 border-white border-t-transparent rounded-full"
+                      className="h-5 w-5 border-2 border-white border-t-transparent rounded-full"
                     />
                   ) : (
                     <Check className="h-5 w-5" />
@@ -261,25 +285,25 @@ export function HabitCard({
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button size="icon" variant="ghost" className="h-8 w-8">
+                <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400 hover:text-slate-600">
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 {onEdit && (
-                  <DropdownMenuItem onClick={() => onEdit(habit)}>
+                  <DropdownMenuItem onClick={() => onEdit(habit)} className="focus:bg-slate-100">
                     <Edit className="mr-2 h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem asChild>
+                <DropdownMenuItem asChild className="focus:bg-slate-100">
                   <Link href={`/dashboard/habits/${habit.id}`}>
                     <Calendar className="mr-2 h-4 w-4" />
                     Backfill days
                   </Link>
                 </DropdownMenuItem>
                 {isCompleted && (
-                  <DropdownMenuItem onClick={handleUncomplete}>
+                  <DropdownMenuItem onClick={handleUncomplete} className="focus:bg-slate-100">
                     <Undo2 className="mr-2 h-4 w-4" />
                     Undo completion
                   </DropdownMenuItem>
@@ -287,7 +311,7 @@ export function HabitCard({
                 {onArchive && (
                   <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => onArchive(habit.id)}>
+                    <DropdownMenuItem onClick={() => onArchive(habit.id)} className="focus:bg-slate-100">
                       <Archive className="mr-2 h-4 w-4" />
                       Archive
                     </DropdownMenuItem>
@@ -295,7 +319,7 @@ export function HabitCard({
                 )}
                 {onDelete && (
                   <DropdownMenuItem
-                    className="text-red-600"
+                    className="text-red-600 focus:bg-red-50 focus:text-red-600"
                     onClick={() => onDelete(habit.id)}
                   >
                     <Trash2 className="mr-2 h-4 w-4" />
@@ -307,6 +331,6 @@ export function HabitCard({
           </div>
         </div>
       </div>
-    </Card>
+    </motion.div>
   );
 }

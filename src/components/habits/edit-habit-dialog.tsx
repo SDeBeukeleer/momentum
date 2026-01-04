@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 import {
@@ -12,25 +12,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { IconPicker, HabitIconDisplay, HABIT_ICONS } from "./habit-icons";
+import { Save } from "lucide-react";
 import type { Habit } from "@prisma/client";
-
-const SUGGESTED_EMOJIS = [
-  "🎯", "💪", "📚", "🧘", "💧", "😴", "🥗", "💻", "✍️", "🎵",
-  "🏃", "🚴", "🏊", "🧘‍♀️", "🏋️", "🌱", "🎨", "🎸", "📝", "🧠",
-];
-
-const COLORS = [
-  "#d97706", // Amber
-  "#ea580c", // Orange
-  "#dc2626", // Red
-  "#db2777", // Pink
-  "#9333ea", // Purple
-  "#2563eb", // Blue
-  "#0891b2", // Cyan
-  "#059669", // Emerald
-  "#65a30d", // Lime
-  "#ca8a04", // Yellow
-];
 
 interface EditHabitDialogProps {
   habit: Habit;
@@ -47,9 +31,15 @@ export function EditHabitDialog({
 }: EditHabitDialogProps) {
   const [name, setName] = useState(habit.name);
   const [icon, setIcon] = useState(habit.icon);
-  const [color, setColor] = useState(habit.color);
-  const [customEmoji, setCustomEmoji] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Update state when habit changes
+  useEffect(() => {
+    setName(habit.name);
+    // Convert old emoji icons to new icon IDs if needed
+    const isValidIconId = HABIT_ICONS.some((i) => i.id === habit.icon);
+    setIcon(isValidIconId ? habit.icon : "target");
+  }, [habit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +57,7 @@ export function EditHabitDialog({
         body: JSON.stringify({
           name: name.trim(),
           icon,
-          color,
+          color: "#00c458", // Keep consistent with primary green
         }),
       });
 
@@ -89,105 +79,64 @@ export function EditHabitDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white border-slate-200">
         <DialogHeader>
-          <DialogTitle>Edit Habit</DialogTitle>
+          <DialogTitle
+            className="text-xl font-semibold text-slate-900"
+            style={{ fontFamily: "var(--font-fraunces)" }}
+          >
+            Edit Habit
+          </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Preview */}
+          <div className="flex items-center justify-center py-4">
+            <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-4 pr-8">
+              <HabitIconDisplay iconId={icon} size="lg" glowing />
+              <div>
+                <p className="font-semibold text-slate-900">
+                  {name || "Your habit name"}
+                </p>
+                <p className="text-sm text-slate-500">
+                  {habit.currentStreak} day streak
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name">Habit Name</Label>
+            <Label htmlFor="edit-name" className="text-slate-700">
+              Habit Name
+            </Label>
             <Input
-              id="name"
+              id="edit-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="h-11"
+              className="h-12 bg-white border-slate-300 rounded-xl focus:border-indigo-500 focus:ring-indigo-200 placeholder:text-slate-400"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Icon</Label>
-            <div className="flex items-center gap-2 mb-2">
-              <Input
-                placeholder="Type or paste any emoji..."
-                value={customEmoji}
-                onChange={(e) => {
-                  setCustomEmoji(e.target.value);
-                  if (e.target.value) {
-                    setIcon(e.target.value);
-                  }
-                }}
-                className="flex-1"
-              />
-              <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center text-xl bg-amber-50 border-2 border-amber-200"
-              >
-                {icon}
-              </div>
-            </div>
-            <p className="text-xs text-amber-700/60 mb-2">Or pick from suggestions:</p>
-            <div className="grid grid-cols-10 gap-1">
-              {SUGGESTED_EMOJIS.map((emoji) => (
-                <motion.button
-                  key={emoji}
-                  type="button"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    setIcon(emoji);
-                    setCustomEmoji("");
-                  }}
-                  className={`h-9 rounded-lg text-lg transition-all ${
-                    icon === emoji
-                      ? "bg-gradient-to-r from-amber-500 to-orange-500 shadow-md"
-                      : "bg-amber-50 hover:bg-amber-100"
-                  }`}
-                >
-                  {emoji}
-                </motion.button>
-              ))}
-            </div>
+          {/* Icon Selection */}
+          <div className="space-y-3">
+            <Label className="text-slate-700">Choose an Icon</Label>
+            <IconPicker value={icon} onChange={setIcon} />
           </div>
 
-          <div className="space-y-2">
-            <Label>Color</Label>
-            <div className="flex gap-2 flex-wrap">
-              {COLORS.map((c) => (
-                <motion.button
-                  key={c}
-                  type="button"
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setColor(c)}
-                  className={`h-8 w-8 rounded-full transition-all ${
-                    color === c ? "ring-2 ring-offset-2 ring-slate-900" : ""
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Info about credits */}
-          <div className="p-4 bg-amber-50/50 rounded-lg">
-            <p className="text-sm text-amber-800/70">
-              Earn credits by hitting milestones (7, 14, 30, 50, 100+ days).
-              Use credits to skip days without breaking your streak!
-            </p>
-          </div>
-
+          {/* Actions */}
           <div className="flex gap-3">
             <Button
               type="button"
               variant="outline"
-              className="flex-1"
+              className="flex-1 h-12 rounded-xl border-slate-300 hover:bg-slate-50"
               onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+              className="flex-1 h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-medium shadow-lg shadow-indigo-200 transition-all"
               disabled={loading}
             >
               {loading ? (
@@ -197,7 +146,10 @@ export function EditHabitDialog({
                   className="h-5 w-5 border-2 border-white border-t-transparent rounded-full"
                 />
               ) : (
-                "Save Changes"
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Changes
+                </>
               )}
             </Button>
           </div>

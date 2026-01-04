@@ -40,10 +40,10 @@ function getIntensity(count: number, max: number): number {
 
 const intensityColors = [
   "bg-slate-100", // 0 - no completions
-  "bg-emerald-200", // 1 - low
-  "bg-emerald-400", // 2 - medium-low
-  "bg-emerald-500", // 3 - medium-high
-  "bg-emerald-600", // 4 - high
+  "bg-indigo-200", // 1 - low
+  "bg-indigo-300", // 2 - medium-low
+  "bg-indigo-500", // 3 - medium-high
+  "bg-indigo-600", // 4 - high
 ];
 
 export function HabitHeatmap({ habits }: HabitHeatmapProps) {
@@ -79,8 +79,8 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
   return (
     <Card className="p-4">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-slate-900">Activity Heatmap</h3>
-        <div className="flex items-center gap-4 text-sm text-slate-500">
+        <h3 className="font-semibold text-foreground">Activity Heatmap</h3>
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <span>{totalCompletions} completions</span>
           <span>{activeDays} active days</span>
           <span>{avgPerDay}/day avg</span>
@@ -88,7 +88,7 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
       </div>
 
       {/* Month labels */}
-      <div className="flex gap-1 mb-2 ml-10 text-xs text-slate-500">
+      <div className="flex gap-1 mb-2 ml-10 text-xs text-muted-foreground">
         {weeks.map((week, i) => {
           const firstDay = week[0];
           // Show month label at the start of each month
@@ -107,7 +107,7 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
       {/* Heatmap grid */}
       <div className="flex gap-1">
         {/* Day labels - all 7 days */}
-        <div className="flex flex-col gap-1 text-xs text-slate-500 pr-2 w-6">
+        <div className="flex flex-col gap-1 text-xs text-muted-foreground pr-2 w-6">
           <span className="h-3 leading-3">Mon</span>
           <span className="h-3 leading-3">Tue</span>
           <span className="h-3 leading-3">Wed</span>
@@ -139,7 +139,7 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
                       stiffness: 300,
                     }}
                     className={`w-3 h-3 rounded-sm ${intensityColors[intensity]} ${
-                      isToday ? "ring-2 ring-indigo-500 ring-offset-1" : ""
+                      isToday ? "ring-2 ring-amber-500 ring-offset-1 ring-offset-white" : ""
                     }`}
                     title={`${day.toLocaleDateString()}: ${count} habit${count !== 1 ? "s" : ""} completed`}
                   />
@@ -152,7 +152,7 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
 
       {/* Legend */}
       <div className="flex items-center justify-end gap-2 mt-3">
-        <span className="text-xs text-slate-400">Less</span>
+        <span className="text-xs text-muted-foreground">Less</span>
         {intensityColors.map((color, i) => (
           <div
             key={i}
@@ -160,7 +160,7 @@ export function HabitHeatmap({ habits }: HabitHeatmapProps) {
             title={`Level ${i}`}
           />
         ))}
-        <span className="text-xs text-slate-400">More</span>
+        <span className="text-xs text-muted-foreground">More</span>
       </div>
     </Card>
   );

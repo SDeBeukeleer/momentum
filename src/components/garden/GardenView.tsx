@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { DioramaDisplay, TimelineScrubber, useDioramaPreloader } from '@/components/diorama-display';
 import { MILESTONES, MILESTONE_CONFIGS, getNextMilestone, getMilestoneProgress } from '@/types/diorama';
-import { Flame, ChevronLeft, ChevronRight, Sparkles, Gift } from 'lucide-react';
+import { Flame, ChevronLeft, ChevronRight, Gift, Leaf } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 interface HabitData {
   id: string;
@@ -33,10 +33,8 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
     return Math.max(1, habit?.streak || 1);
   });
 
-  // Get current habit
   const currentHabit = habits[currentIndex];
 
-  // Preload nearby images for smooth scrubbing
   useDioramaPreloader({
     currentDay: displayDay,
     preloadRadius: 10,
@@ -45,44 +43,49 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
 
   if (habits.length === 0) {
     return (
-      <Card className="p-8 text-center">
-        <Sparkles className="w-12 h-12 mx-auto text-amber-300 mb-4" />
-        <h3 className="text-lg font-semibold text-amber-950 mb-2">No habits yet</h3>
-        <p className="text-amber-800/70">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
+        <div className="relative h-20 w-20 mx-auto mb-6">
+          <div className="absolute inset-0 rounded-full bg-indigo-100 animate-pulse" />
+          <div className="absolute inset-2 rounded-full bg-indigo-50 flex items-center justify-center">
+            <Leaf className="h-8 w-8 text-indigo-500" />
+          </div>
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2" style={{ fontFamily: 'var(--font-fraunces)' }}>
+          Your garden awaits
+        </h3>
+        <p className="text-slate-500">
           Create your first habit to start growing your garden!
         </p>
-      </Card>
+      </div>
     );
   }
 
   const milestoneProgress = getMilestoneProgress(currentHabit.streak);
-
-  // Find next milestone with full config
   const nextMilestone = getNextMilestone(currentHabit.streak);
   const daysToNextMilestone = nextMilestone ? nextMilestone.day - currentHabit.streak : null;
-
-  // Check if viewing current streak or a different day
   const isViewingCurrentDay = displayDay === Math.max(1, currentHabit.streak);
 
   const goToPrevious = () => {
     setCurrentIndex(prev => (prev - 1 + habits.length) % habits.length);
-    // Reset display day to new habit's streak
     const newIndex = (currentIndex - 1 + habits.length) % habits.length;
     setDisplayDay(Math.max(1, habits[newIndex].streak));
   };
 
   const goToNext = () => {
     setCurrentIndex(prev => (prev + 1) % habits.length);
-    // Reset display day to new habit's streak
     const newIndex = (currentIndex + 1) % habits.length;
     setDisplayDay(Math.max(1, habits[newIndex].streak));
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
       {/* Main Diorama View */}
-      <Card className="lg:col-span-2 overflow-hidden">
-        <div className="relative bg-gradient-to-b from-amber-50/50 to-white p-4">
+      <motion.div
+        className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="relative p-6 bg-gradient-to-b from-indigo-50/50 to-transparent">
           <div className="flex justify-center">
             <DioramaDisplay
               day={displayDay}
@@ -94,13 +97,13 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
             />
           </div>
 
-          {/* Navigation arrows for multiple habits */}
+          {/* Navigation arrows */}
           {habits.length > 1 && (
             <>
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white border border-slate-200 shadow-sm"
                 onClick={goToPrevious}
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -108,7 +111,7 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white"
+                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white border border-slate-200 shadow-sm"
                 onClick={goToNext}
               >
                 <ChevronRight className="w-5 h-5" />
@@ -116,82 +119,100 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
             </>
           )}
 
-          {/* Viewing past day indicator */}
+          {/* Day indicator */}
           {!isViewingCurrentDay && (
-            <div className="absolute top-3 left-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+            <Badge className="absolute top-4 left-4 bg-indigo-600 text-white">
               Day {displayDay}
-            </div>
+            </Badge>
           )}
         </div>
 
-        {/* Timeline Scrubber - always visible */}
         <TimelineScrubber
           currentStreak={currentHabit.streak}
           displayDay={displayDay}
           onDayChange={setDisplayDay}
         />
-      </Card>
+      </motion.div>
 
       {/* Stats Panel */}
       <div className="space-y-4">
         {/* Current Habit Info */}
-        <Card className="p-4">
+        <motion.div
+          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+        >
           <div className="flex items-center gap-3 mb-4">
             <div
-              className="w-4 h-4 rounded-full"
-              style={{ backgroundColor: currentHabit.color }}
+              className="w-4 h-4 rounded-full shadow-lg"
+              style={{ backgroundColor: currentHabit.color, boxShadow: `0 0 12px ${currentHabit.color}60` }}
             />
-            <h2 className="font-semibold text-lg text-amber-950">{currentHabit.name}</h2>
+            <h2 className="font-semibold text-lg text-slate-900" style={{ fontFamily: 'var(--font-fraunces)' }}>
+              {currentHabit.name}
+            </h2>
           </div>
 
           <div className="flex items-center gap-2 mb-4">
-            <Flame className="w-5 h-5 text-orange-500" />
-            <span className="text-2xl font-bold text-amber-950">{currentHabit.streak}</span>
-            <span className="text-amber-800/70">day streak</span>
+            <Flame className="w-6 h-6 text-indigo-600" />
+            <span className="text-3xl font-bold text-indigo-600">{currentHabit.streak}</span>
+            <span className="text-slate-500">day streak</span>
           </div>
 
           {!isViewingCurrentDay && (
-            <div className="text-sm text-amber-700/60">
+            <div className="text-sm text-slate-500">
               Viewing day {displayDay} of your journey
             </div>
           )}
-        </Card>
+        </motion.div>
 
         {/* Next Milestone */}
         {nextMilestone && daysToNextMilestone !== null && (
-          <Card className="p-4">
-            <div className="flex items-center gap-2 mb-2">
+          <motion.div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <div className="flex items-center gap-2 mb-3">
               <span className="text-2xl">{nextMilestone.emoji}</span>
-              <h3 className="font-medium text-amber-950">{nextMilestone.name}</h3>
+              <h3 className="font-medium text-slate-900">{nextMilestone.name}</h3>
             </div>
             <div className="flex items-baseline gap-2 mb-3">
-              <span className="text-3xl font-bold text-green-700">
+              <span className="text-3xl font-bold text-indigo-600">
                 {daysToNextMilestone}
               </span>
-              <span className="text-amber-800/70">days to go</span>
+              <span className="text-slate-500">days to go</span>
             </div>
-            <div className="w-full bg-amber-100 rounded-full h-2">
-              <div
-                className="bg-green-600 h-2 rounded-full transition-all"
-                style={{ width: `${milestoneProgress * 100}%` }}
+            <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+              <motion.div
+                className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-full rounded-full"
+                initial={{ width: 0 }}
+                animate={{ width: `${milestoneProgress * 100}%` }}
+                transition={{ duration: 0.5 }}
               />
             </div>
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-sm text-amber-700/60">
+            <div className="flex items-center justify-between mt-3">
+              <p className="text-sm text-slate-500">
                 Day {nextMilestone.day}
               </p>
-              <div className="flex items-center gap-1 text-sm text-amber-600">
-                <Gift className="w-3.5 h-3.5" />
+              <div className="flex items-center gap-1 text-sm text-amber-500">
+                <Gift className="w-4 h-4" />
                 <span>+{nextMilestone.bonusCredits} credit{nextMilestone.bonusCredits > 1 ? 's' : ''}</span>
               </div>
             </div>
-          </Card>
+          </motion.div>
         )}
 
         {/* Habit Selector */}
         {habits.length > 1 && (
-          <Card className="p-4">
-            <h3 className="font-medium text-amber-950 mb-3">Your Habits</h3>
+          <motion.div
+            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <h3 className="font-medium text-slate-900 mb-3">Your Habits</h3>
             <div className="space-y-2">
               {habits.map((habit, index) => (
                 <button
@@ -200,29 +221,34 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
                     setCurrentIndex(index);
                     setDisplayDay(Math.max(1, habit.streak));
                   }}
-                  className={`w-full flex items-center gap-3 p-2 rounded-lg transition-colors ${
+                  className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
                     index === currentIndex
-                      ? 'bg-amber-100/50'
-                      : 'hover:bg-amber-50'
+                      ? 'bg-indigo-50 border border-indigo-200'
+                      : 'hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className="w-3 h-3 rounded-full"
                     style={{ backgroundColor: habit.color }}
                   />
-                  <span className="flex-1 text-left text-sm">{habit.name}</span>
-                  <span className="text-sm text-amber-700/60">
+                  <span className="flex-1 text-left text-sm text-slate-900">{habit.name}</span>
+                  <span className="text-sm text-slate-500">
                     {habit.streak} days
                   </span>
                 </button>
               ))}
             </div>
-          </Card>
+          </motion.div>
         )}
 
         {/* Milestone Reference */}
-        <Card className="p-4">
-          <h3 className="font-medium text-amber-950 mb-3">Milestones</h3>
+        <motion.div
+          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h3 className="font-medium text-slate-900 mb-3">Milestones</h3>
           <div className="space-y-2">
             {MILESTONES.map((day) => {
               const config = MILESTONE_CONFIGS[day];
@@ -230,10 +256,10 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
               return (
                 <div
                   key={day}
-                  className={`flex items-center gap-2 p-2 rounded-lg text-sm ${
+                  className={`flex items-center gap-2 p-2.5 rounded-xl text-sm transition-all ${
                     reached
-                      ? 'bg-green-50 text-green-700'
-                      : 'bg-amber-50 text-amber-700/60'
+                      ? 'bg-indigo-50 text-indigo-600'
+                      : 'bg-slate-50 text-slate-400'
                   }`}
                 >
                   <span className={reached ? '' : 'grayscale opacity-50'}>{config.emoji}</span>
@@ -246,7 +272,7 @@ export function GardenView({ habits, selectedHabitId }: GardenViewProps) {
               );
             })}
           </div>
-        </Card>
+        </motion.div>
       </div>
     </div>
   );

@@ -9,8 +9,7 @@ import { MilestoneCelebration } from "@/components/celebrations/MilestoneCelebra
 import { DioramaDisplay } from "@/components/diorama-display";
 import { useGuidanceContext } from "@/components/guidance";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Plus, Sparkles, Flame, ArrowRight } from "lucide-react";
+import { Plus, Sparkles, Flame, ArrowRight, Leaf, Target } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { Habit, HabitCompletion } from "@prisma/client";
@@ -39,11 +38,11 @@ function getGreeting() {
 }
 
 function getMotivationalMessage(completedCount: number, totalCount: number) {
-  if (totalCount === 0) return "Create your first habit to get started!";
-  if (completedCount === totalCount) return "You're on fire! All habits completed!";
-  if (completedCount === 0) return "Let's crush those habits today!";
-  if (completedCount / totalCount >= 0.5) return "Great progress! Keep it going!";
-  return "You've got this! One habit at a time.";
+  if (totalCount === 0) return "Plant your first seed to start growing";
+  if (completedCount === totalCount) return "Your garden is thriving today!";
+  if (completedCount === 0) return "Time to nurture your habits";
+  if (completedCount / totalCount >= 0.5) return "Growing strong! Keep nurturing";
+  return "Every small step helps your garden grow";
 }
 
 export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
@@ -56,6 +55,7 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
 
   const completedCount = habits.filter((h) => h.completions.length > 0).length;
   const totalCount = habits.length;
+  const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   const handleHabitComplete = (
     habitId: string,
@@ -71,12 +71,10 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
       )
     );
 
-    // Show milestone celebration if one was reached
     if (milestoneReached) {
       setCelebratingMilestone(milestoneReached);
     }
 
-    // Trigger guidance pop-up (only if no milestone celebration)
     if (!milestoneReached) {
       onHabitCompleted(updatedHabit.currentStreak);
     }
@@ -95,8 +93,6 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   const handleHabitCreated = (habit: HabitWithCompletions) => {
     setHabits((prev) => [...prev, habit]);
     setShowCreateDialog(false);
-
-    // Trigger guidance pop-up for first habit creation
     onHabitCreated();
   };
 
@@ -152,23 +148,33 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 max-w-2xl mx-auto">
       {/* Header */}
-      <div className="space-y-2">
-        <motion.h1
+      <div className="space-y-3">
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-2xl md:text-3xl font-bold text-amber-950"
+          className="flex items-center gap-3"
         >
-          {getGreeting()}, {userName}!
-        </motion.h1>
+          <div className="h-12 w-12 rounded-2xl bg-indigo-100 flex items-center justify-center">
+            <Leaf className="h-6 w-6 text-indigo-600" />
+          </div>
+          <div>
+            <h1
+              className="text-2xl md:text-3xl font-semibold text-slate-900"
+              style={{ fontFamily: 'var(--font-fraunces)' }}
+            >
+              {getGreeting()}, {userName}
+            </h1>
+          </div>
+        </motion.div>
         <motion.p
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="text-amber-800/70 flex items-center gap-2"
+          className="text-slate-500 flex items-center gap-2 pl-1"
         >
-          <Sparkles className="h-4 w-4 text-amber-500" />
+          <Sparkles className="h-4 w-4 text-indigo-500" />
           {getMotivationalMessage(completedCount, totalCount)}
         </motion.p>
       </div>
@@ -179,28 +185,49 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
-          className="bg-white/80 rounded-2xl p-4 shadow-sm border border-amber-200/60"
+          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5"
         >
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-amber-800/70">Today&apos;s Progress</span>
-            <span className="text-sm font-bold text-amber-950">
-              {completedCount}/{totalCount}
-            </span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-indigo-600" />
+              <span className="text-sm font-medium text-slate-700">Today&apos;s Progress</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold text-indigo-600">{completedCount}</span>
+              <span className="text-slate-400">/</span>
+              <span className="text-lg text-slate-500">{totalCount}</span>
+            </div>
           </div>
-          <div className="h-3 bg-amber-100 rounded-full overflow-hidden">
+          <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
-              animate={{
-                width: `${totalCount > 0 ? (completedCount / totalCount) * 100 : 0}%`,
-              }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"
+              animate={{ width: `${progressPercent}%` }}
+              transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-full"
             />
+            {progressPercent > 0 && progressPercent < 100 && (
+              <motion.div
+                className="absolute inset-y-0 left-0 rounded-full"
+                style={{ width: `${progressPercent}%` }}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+              </motion.div>
+            )}
           </div>
+          {completedCount === totalCount && totalCount > 0 && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-sm text-indigo-600 mt-3 text-center font-medium"
+            >
+              All habits complete! Your garden flourishes.
+            </motion.p>
+          )}
         </motion.div>
       )}
 
-      {/* Mini Diorama Preview - Show best streak habit */}
+      {/* Mini Diorama Preview */}
       {(() => {
         const bestHabit = habits.reduce((best, h) =>
           h.currentStreak > (best?.currentStreak || 0) ? h : best,
@@ -215,25 +242,28 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
             transition={{ delay: 0.3 }}
           >
             <Link href="/garden">
-              <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer group transition-all hover:shadow-md hover:border-indigo-200">
                 <div className="flex items-center gap-4">
-                  <DioramaDisplay
-                    day={Math.min(bestHabit.currentStreak, 200)}
-                    size="mini"
-                    animate={false}
-                    showGlow={false}
-                  />
+                  <div className="relative">
+                    <DioramaDisplay
+                      day={Math.min(bestHabit.currentStreak, 200)}
+                      size="mini"
+                      animate={false}
+                      showGlow={false}
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-amber-700/60">Your best streak</p>
-                    <p className="font-semibold text-amber-950 truncate">{bestHabit.name}</p>
-                    <div className="flex items-center gap-1 text-orange-600">
+                    <p className="text-sm text-slate-500">Your best streak</p>
+                    <p className="font-semibold text-slate-900 truncate">{bestHabit.name}</p>
+                    <div className="flex items-center gap-1.5 text-indigo-600 mt-1">
                       <Flame className="h-4 w-4" />
                       <span className="font-bold">{bestHabit.currentStreak} days</span>
                     </div>
                   </div>
-                  <ArrowRight className="h-5 w-5 text-amber-400 group-hover:text-amber-600 transition-colors" />
+                  <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
                 </div>
-              </Card>
+              </div>
             </Link>
           </motion.div>
         );
@@ -267,20 +297,26 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
+            className="text-center py-16"
           >
-            <div className="h-20 w-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
-              <Plus className="h-10 w-10 text-amber-600" />
+            <div className="relative h-24 w-24 mx-auto mb-6">
+              <div className="absolute inset-0 rounded-full bg-indigo-100 animate-pulse" />
+              <div className="absolute inset-2 rounded-full bg-indigo-50 flex items-center justify-center">
+                <Leaf className="h-10 w-10 text-indigo-500" />
+              </div>
             </div>
-            <h3 className="text-lg font-semibold text-amber-950 mb-2">
-              No habits yet
+            <h3
+              className="text-xl font-semibold text-slate-900 mb-2"
+              style={{ fontFamily: 'var(--font-fraunces)' }}
+            >
+              Plant your first seed
             </h3>
-            <p className="text-amber-800/70 mb-4">
-              Create your first habit to start building momentum!
+            <p className="text-slate-500 mb-6 max-w-xs mx-auto">
+              Create your first habit and watch your garden grow with each day of progress
             </p>
             <Button
               onClick={() => setShowCreateDialog(true)}
-              className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
             >
               <Plus className="h-4 w-4 mr-2" />
               Create Habit
@@ -295,12 +331,12 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.5, type: "spring" }}
-          className="fixed bottom-24 right-4 md:bottom-6 md:right-6"
+          className="fixed bottom-24 right-4 md:bottom-8 md:right-8 z-40"
         >
           <Button
             onClick={() => setShowCreateDialog(true)}
             size="lg"
-            className="h-14 w-14 rounded-full bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-lg hover:shadow-xl transition-all"
+            className="h-14 w-14 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-300 transition-all hover:scale-105"
           >
             <Plus className="h-6 w-6" />
           </Button>

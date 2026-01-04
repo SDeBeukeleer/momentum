@@ -18,6 +18,12 @@ interface DioramaDisplayProps {
 function getDioramaPath(day: number): string {
   const clampedDay = Math.max(1, Math.min(200, day));
   const paddedDay = clampedDay.toString().padStart(3, '0');
+
+  // TEST: Show isometric platform test for day 75
+  if (clampedDay === 75) {
+    return `/diorama/isometric-test/day-075.png`;
+  }
+
   return `/diorama/final/day-${paddedDay}.png`;
 }
 
@@ -68,17 +74,17 @@ export function DioramaDisplay({
     )}>
       {/* Loading skeleton */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-100 to-amber-200 animate-pulse rounded-xl flex items-center justify-center">
-          <div className="w-8 h-8 border-2 border-amber-400 border-t-transparent rounded-full animate-spin" />
+        <div className="absolute inset-0 bg-gradient-to-br from-indigo-100 to-slate-100 animate-pulse rounded-xl flex items-center justify-center">
+          <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
         </div>
       )}
 
-      {/* Glow effect behind image - warm amber to match cream diorama */}
+      {/* Glow effect behind image - indigo theme */}
       {showGlow && isLoaded && (
         <motion.div
-          className="absolute inset-4 rounded-full blur-2xl bg-amber-400"
+          className="absolute inset-4 rounded-full blur-2xl bg-indigo-500/40"
           animate={{
-            opacity: [0.25, 0.4, 0.25],
+            opacity: [0.15, 0.3, 0.15],
             scale: [0.9, 1, 0.9],
           }}
           transition={{
@@ -117,7 +123,7 @@ export function DioramaDisplay({
 
       {/* Day badge */}
       {size !== 'mini' && (
-        <div className="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full backdrop-blur-sm">
+        <div className="absolute bottom-2 right-2 bg-indigo-600/90 text-white text-xs px-2 py-1 rounded-full shadow-sm">
           Day {Math.max(1, Math.min(200, day))}
         </div>
       )}

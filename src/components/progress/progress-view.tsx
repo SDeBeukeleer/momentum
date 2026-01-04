@@ -2,10 +2,8 @@
 
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   BarChart3,
-  TrendingUp,
   Target,
   Flame,
   Calendar,
@@ -36,14 +34,14 @@ interface ProgressViewProps {
   weightLogs: WeightLog[];
 }
 
-// Badge definitions
+// Badge definitions - indigo theme colors
 const badgeDefinitions = [
   {
     id: "first-habit",
     name: "First Step",
     description: "Create your first habit",
     icon: Target,
-    color: "from-blue-400 to-blue-600",
+    color: "from-indigo-500 to-indigo-600",
     check: (data: ProgressViewProps) => data.habits.length >= 1,
   },
   {
@@ -51,7 +49,7 @@ const badgeDefinitions = [
     name: "Getting Started",
     description: "Achieve a 3-day streak",
     icon: Flame,
-    color: "from-orange-400 to-orange-600",
+    color: "from-orange-500 to-amber-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentStreak >= 3 || h.longestStreak >= 3),
   },
@@ -60,7 +58,7 @@ const badgeDefinitions = [
     name: "Week Warrior",
     description: "Achieve a 7-day streak",
     icon: Flame,
-    color: "from-orange-500 to-red-500",
+    color: "from-rose-500 to-pink-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentStreak >= 7 || h.longestStreak >= 7),
   },
@@ -69,7 +67,7 @@ const badgeDefinitions = [
     name: "Two Week Champion",
     description: "Achieve a 14-day streak",
     icon: Zap,
-    color: "from-yellow-400 to-amber-500",
+    color: "from-purple-500 to-violet-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentStreak >= 14 || h.longestStreak >= 14),
   },
@@ -78,7 +76,7 @@ const badgeDefinitions = [
     name: "Monthly Master",
     description: "Achieve a 30-day streak",
     icon: Crown,
-    color: "from-purple-500 to-pink-500",
+    color: "from-amber-400 to-yellow-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentStreak >= 30 || h.longestStreak >= 30),
   },
@@ -87,7 +85,7 @@ const badgeDefinitions = [
     name: "Credit Earned",
     description: "Earn your first skip credit",
     icon: Star,
-    color: "from-amber-400 to-yellow-500",
+    color: "from-emerald-500 to-teal-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentCredits >= 1),
   },
@@ -96,7 +94,7 @@ const badgeDefinitions = [
     name: "Credit Collector",
     description: "Accumulate 5 credits on any habit",
     icon: Medal,
-    color: "from-slate-400 to-slate-600",
+    color: "from-slate-400 to-slate-500",
     check: (data: ProgressViewProps) =>
       data.habits.some((h) => h.currentCredits >= 5),
   },
@@ -105,7 +103,7 @@ const badgeDefinitions = [
     name: "Scale Starter",
     description: "Log your first weight entry",
     icon: Target,
-    color: "from-cyan-400 to-blue-500",
+    color: "from-cyan-500 to-blue-500",
     check: (data: ProgressViewProps) => data.weightLogs.length >= 1,
   },
   {
@@ -113,7 +111,7 @@ const badgeDefinitions = [
     name: "Consistent Tracker",
     description: "Log 30 weight entries",
     icon: Trophy,
-    color: "from-indigo-500 to-purple-600",
+    color: "from-indigo-600 to-purple-600",
     check: (data: ProgressViewProps) => data.weightLogs.length >= 30,
   },
   {
@@ -121,7 +119,7 @@ const badgeDefinitions = [
     name: "Habit Builder",
     description: "Create 5 habits",
     icon: Target,
-    color: "from-pink-400 to-rose-500",
+    color: "from-indigo-500 to-violet-500",
     check: (data: ProgressViewProps) => data.habits.length >= 5,
   },
 ];
@@ -205,7 +203,6 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
     (sum, h) => sum + h.completions.length,
     0
   );
-  const totalCredits = habits.reduce((sum, h) => sum + h.currentCredits, 0);
 
   // Weight trend (last 30 entries)
   const weightTrend = weightLogs
@@ -228,12 +225,12 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-            <BarChart3 className="h-6 w-6 text-white" />
+          <div className="h-12 w-12 rounded-xl bg-indigo-100 flex items-center justify-center">
+            <BarChart3 className="h-6 w-6 text-indigo-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-amber-950">Progress</h1>
-            <p className="text-amber-800/70">Your stats and achievements</p>
+            <h1 className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-fraunces)' }}>Progress</h1>
+            <p className="text-slate-500">Your stats and achievements</p>
           </div>
         </div>
         <ShareCard habits={habits} />
@@ -242,28 +239,28 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
       {/* Overview Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="p-4 text-center">
-          <Target className="h-5 w-5 mx-auto text-amber-600 mb-2" />
-          <div className="text-2xl font-bold text-amber-950">{habits.length}</div>
-          <div className="text-xs text-amber-700/60">Active Habits</div>
+          <Target className="h-5 w-5 mx-auto text-indigo-600 mb-2" />
+          <div className="text-2xl font-bold text-slate-900">{habits.length}</div>
+          <div className="text-xs text-slate-500">Active Habits</div>
         </Card>
         <Card className="p-4 text-center">
-          <Calendar className="h-5 w-5 mx-auto text-green-600 mb-2" />
-          <div className="text-2xl font-bold text-amber-950">
+          <Calendar className="h-5 w-5 mx-auto text-indigo-600 mb-2" />
+          <div className="text-2xl font-bold text-slate-900">
             {totalCompletions}
           </div>
-          <div className="text-xs text-amber-700/60">Total Completions</div>
+          <div className="text-xs text-slate-500">Total Completions</div>
         </Card>
         <Card className="p-4 text-center">
-          <Flame className="h-5 w-5 mx-auto text-orange-600 mb-2" />
-          <div className="text-2xl font-bold text-amber-950">
+          <Flame className="h-5 w-5 mx-auto text-amber-500 mb-2" />
+          <div className="text-2xl font-bold text-slate-900">
             {streakStats.maxLongestStreak}
           </div>
-          <div className="text-xs text-amber-700/60">Best Streak Ever</div>
+          <div className="text-xs text-slate-500">Best Streak Ever</div>
         </Card>
         <Card className="p-4 text-center">
-          <Trophy className="h-5 w-5 mx-auto text-amber-600 mb-2" />
-          <div className="text-2xl font-bold text-amber-950">{earnedBadges.length}</div>
-          <div className="text-xs text-amber-700/60">Badges Earned</div>
+          <Trophy className="h-5 w-5 mx-auto text-amber-500 mb-2" />
+          <div className="text-2xl font-bold text-slate-900">{earnedBadges.length}</div>
+          <div className="text-xs text-slate-500">Badges Earned</div>
         </Card>
       </div>
 
@@ -272,7 +269,7 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
 
       {/* Achievements Section */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <h3 className="font-semibold mb-4 flex items-center gap-2 text-slate-900">
           <Trophy className="h-5 w-5 text-amber-500" />
           Achievements ({earnedBadges.length}/{badgeDefinitions.length})
         </h3>
@@ -283,30 +280,30 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: index * 0.05 }}
-              className="text-center p-3 rounded-lg bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200"
+              className="text-center p-3 rounded-xl bg-slate-50 border border-slate-200"
             >
               <div
-                className={`h-10 w-10 mx-auto rounded-full bg-gradient-to-br ${badge.color} flex items-center justify-center mb-2 shadow-md`}
+                className={`h-10 w-10 mx-auto rounded-full bg-gradient-to-br ${badge.color} flex items-center justify-center mb-2 shadow-lg`}
               >
                 <badge.icon className="h-5 w-5 text-white" />
               </div>
-              <p className="text-xs font-medium text-amber-950">{badge.name}</p>
+              <p className="text-xs font-medium text-slate-900">{badge.name}</p>
             </motion.div>
           ))}
           {lockedBadges.slice(0, 5 - earnedBadges.length).map((badge) => (
             <div
               key={badge.id}
-              className="text-center p-3 rounded-lg bg-slate-50 opacity-50"
+              className="text-center p-3 rounded-xl bg-slate-100 opacity-50"
             >
               <div className="h-10 w-10 mx-auto rounded-full bg-slate-200 flex items-center justify-center mb-2">
                 <Lock className="h-4 w-4 text-slate-400" />
               </div>
-              <p className="text-xs font-medium text-slate-500">{badge.name}</p>
+              <p className="text-xs font-medium text-slate-400">{badge.name}</p>
             </div>
           ))}
         </div>
         {lockedBadges.length > 0 && (
-          <p className="text-xs text-amber-700/60 mt-3 text-center">
+          <p className="text-xs text-slate-500 mt-3 text-center">
             {lockedBadges.length} more badge{lockedBadges.length > 1 ? 's' : ''} to unlock
           </p>
         )}
@@ -314,23 +311,25 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
 
       {/* Weekly Trend */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-4">Weekly Trend</h3>
+        <h3 className="font-semibold mb-4 text-slate-900">Weekly Trend</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={weeklyTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" />
-              <XAxis dataKey="week" fontSize={12} stroke="#92400e" />
-              <YAxis fontSize={12} stroke="#92400e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+              <XAxis dataKey="week" fontSize={12} stroke="#94a3b8" />
+              <YAxis fontSize={12} stroke="#94a3b8" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#fffbeb",
-                  border: "1px solid #fde68a",
-                  borderRadius: "8px",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "12px",
+                  color: "#1e293b",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
               />
               <Bar
                 dataKey="completions"
-                fill="#d97706"
+                fill="#4f46e5"
                 radius={[4, 4, 0, 0]}
                 name="Completions"
               />
@@ -341,29 +340,31 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
 
       {/* Day of Week Distribution */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-4">Best Days</h3>
+        <h3 className="font-semibold mb-4 text-slate-900">Best Days</h3>
         <div className="h-48">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={dayStats} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" />
-              <XAxis type="number" fontSize={12} stroke="#92400e" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+              <XAxis type="number" fontSize={12} stroke="#94a3b8" />
               <YAxis
                 dataKey="day"
                 type="category"
                 fontSize={12}
-                stroke="#92400e"
+                stroke="#94a3b8"
                 width={40}
               />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: "#fffbeb",
-                  border: "1px solid #fde68a",
-                  borderRadius: "8px",
+                  backgroundColor: "#ffffff",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "12px",
+                  color: "#1e293b",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                 }}
               />
               <Bar
                 dataKey="completions"
-                fill="#ea580c"
+                fill="#6366f1"
                 radius={[0, 4, 4, 0]}
                 name="Completions"
               />
@@ -375,30 +376,32 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
       {/* Weight Trend */}
       {weightTrend.length > 1 && (
         <Card className="p-4">
-          <h3 className="font-semibold mb-4">Weight Trend</h3>
+          <h3 className="font-semibold mb-4 text-slate-900">Weight Trend</h3>
           <div className="h-48">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={weightTrend}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#fde68a" />
-                <XAxis dataKey="date" fontSize={12} stroke="#92400e" />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+                <XAxis dataKey="date" fontSize={12} stroke="#94a3b8" />
                 <YAxis
                   fontSize={12}
-                  stroke="#92400e"
+                  stroke="#94a3b8"
                   domain={["dataMin - 1", "dataMax + 1"]}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#fffbeb",
-                    border: "1px solid #fde68a",
-                    borderRadius: "8px",
+                    backgroundColor: "#ffffff",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    color: "#1e293b",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
                   }}
                 />
                 <Line
                   type="monotone"
                   dataKey="weight"
-                  stroke="#d97706"
+                  stroke="#4f46e5"
                   strokeWidth={2}
-                  dot={{ fill: "#d97706", strokeWidth: 2 }}
+                  dot={{ fill: "#4f46e5", strokeWidth: 2 }}
                   name="Weight (kg)"
                 />
               </LineChart>
@@ -409,34 +412,34 @@ export function ProgressView({ habits, weightLogs }: ProgressViewProps) {
 
       {/* Streak Stats */}
       <Card className="p-4">
-        <h3 className="font-semibold mb-4 flex items-center gap-2">
-          <Flame className="h-5 w-5 text-orange-500" />
+        <h3 className="font-semibold mb-4 flex items-center gap-2 text-slate-900">
+          <Flame className="h-5 w-5 text-amber-500" />
           Streak Statistics
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-orange-600">
+            <div className="text-2xl font-bold text-indigo-600">
               {streakStats.maxCurrentStreak}
             </div>
-            <div className="text-xs text-amber-700/60">Best Current</div>
+            <div className="text-xs text-slate-500">Best Current</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-amber-600">
+            <div className="text-2xl font-bold text-amber-500">
               {streakStats.maxLongestStreak}
             </div>
-            <div className="text-xs text-amber-700/60">All-Time Best</div>
+            <div className="text-xs text-slate-500">All-Time Best</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-indigo-600">
               {streakStats.totalCurrentStreak}
             </div>
-            <div className="text-xs text-amber-700/60">Combined Streaks</div>
+            <div className="text-xs text-slate-500">Combined Streaks</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-orange-700">
+            <div className="text-2xl font-bold text-amber-500">
               {streakStats.avgCurrentStreak}
             </div>
-            <div className="text-xs text-amber-700/60">Avg Streak</div>
+            <div className="text-xs text-slate-500">Avg Streak</div>
           </div>
         </div>
       </Card>
