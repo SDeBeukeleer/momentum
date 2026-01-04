@@ -11,7 +11,10 @@ A modern habit tracking app that helps users build lasting habits through a uniq
 - **Skip Days** - Use earned credits to take guilt-free rest days without breaking streaks
 
 ### Garden & Dioramas
-- **Visual Progression** - 200 unique diorama images showing habit growth
+- **Three Unique Themes** - Choose your visual journey:
+  - **Growing Garden** - Watch a plant grow from seed to flourishing garden (200 days)
+  - **Car Restoration** - Restore a rusty Porsche into a championship race car (200 days)
+  - **Spaceship Builder** - Build a spaceship piece by piece (130 days)
 - **Timeline Scrubber** - View your journey from Day 1 to your current streak
 - **Milestone Rewards** - Celebrate achievements with credits and visual upgrades
 
@@ -26,11 +29,13 @@ A modern habit tracking app that helps users build lasting habits through a uniq
 - **Weekly Trends** - Charts showing habit completion patterns
 - **Best Days Analysis** - Identify your most productive days
 
-### User Guidance
-- **Smart Pop-ups** - Contextual guidance for new users (max 2/day)
-- **Onboarding Flow** - Helpful tips for first habit, first completion, etc.
+### Onboarding & Guidance
+- **Welcome Screen** - First-time users see an introduction to the app
+- **Spotlight Tutorials** - UI highlights guide users through creating their first habit
+- **Progressive Onboarding** - Step-by-step flow: welcome → create habit → complete habit → discover diorama
+- **Smart Pop-ups** - Contextual guidance triggered by user state (max 2/day)
 - **Milestone Celebrations** - Celebratory messages with confetti at key streaks
-- **Feature Discovery** - Gentle nudges to explore garden and credits
+- **Feature Discovery** - Gentle nudges to explore themes and credits
 
 ## Tech Stack
 
@@ -92,11 +97,11 @@ src/
 │   └── api/                # API routes
 ├── components/
 │   ├── diorama-display/    # Pre-rendered diorama images
-│   ├── garden/             # Garden view components
 │   ├── guidance/           # User guidance pop-up system
 │   ├── habits/             # Habit cards, dialogs, views
 │   ├── layout/             # Navbar, layout components
-│   ├── stats/              # Progress and statistics
+│   ├── onboarding/         # Welcome screen, spotlights, onboarding flow
+│   ├── progress/           # Progress and statistics
 │   ├── ui/                 # shadcn/ui components
 │   └── weight/             # Weight tracking components
 ├── lib/                    # Utilities and configurations
