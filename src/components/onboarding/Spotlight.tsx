@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
@@ -20,6 +20,11 @@ interface TargetRect {
   height: number;
 }
 
+interface TooltipPosition {
+  top: number;
+  left: number;
+}
+
 export function Spotlight({
   targetSelector,
   title,
@@ -29,6 +34,7 @@ export function Spotlight({
   buttonLabel = 'Got it',
 }: SpotlightProps) {
   const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<TooltipPosition | null>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,45 +73,53 @@ export function Spotlight({
     };
   }, [targetSelector]);
 
-  if (!targetRect) return null;
+  // Calculate and adjust tooltip position after render
+  useLayoutEffect(() => {
+    if (!targetRect || !tooltipRef.current) return;
 
-  // Calculate tooltip position
-  const padding = 16;
-  const tooltipOffset = 12;
+    const tooltip = tooltipRef.current;
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const margin = 16; // Minimum margin from screen edges
+    const tooltipOffset = 12;
 
-  const getTooltipPosition = () => {
+    // Calculate initial position based on preferred position
+    let top: number;
+    let left: number;
+
     const centerX = targetRect.left + targetRect.width / 2;
     const centerY = targetRect.top + targetRect.height / 2;
 
     switch (position) {
       case 'top':
-        return {
-          top: targetRect.top - tooltipOffset,
-          left: centerX,
-          transform: 'translate(-50%, -100%)',
-        };
+        top = targetRect.top - tooltipOffset - tooltipRect.height;
+        left = centerX - tooltipRect.width / 2;
+        break;
       case 'bottom':
-        return {
-          top: targetRect.top + targetRect.height + tooltipOffset,
-          left: centerX,
-          transform: 'translate(-50%, 0)',
-        };
+        top = targetRect.top + targetRect.height + tooltipOffset;
+        left = centerX - tooltipRect.width / 2;
+        break;
       case 'left':
-        return {
-          top: centerY,
-          left: targetRect.left - tooltipOffset,
-          transform: 'translate(-100%, -50%)',
-        };
+        top = centerY - tooltipRect.height / 2;
+        left = targetRect.left - tooltipOffset - tooltipRect.width;
+        break;
       case 'right':
-        return {
-          top: centerY,
-          left: targetRect.left + targetRect.width + tooltipOffset,
-          transform: 'translate(0, -50%)',
-        };
+        top = centerY - tooltipRect.height / 2;
+        left = targetRect.left + targetRect.width + tooltipOffset;
+        break;
     }
-  };
 
-  const tooltipPosition = getTooltipPosition();
+    // Clamp to viewport bounds
+    left = Math.max(margin, Math.min(left, viewportWidth - tooltipRect.width - margin));
+    top = Math.max(margin, Math.min(top, viewportHeight - tooltipRect.height - margin));
+
+    setTooltipPosition({ top, left });
+  }, [targetRect, position]);
+
+  if (!targetRect) return null;
+
+  const padding = 16;
 
   return (
     <AnimatePresence>
@@ -166,29 +180,17 @@ export function Spotlight({
         <motion.div
           ref={tooltipRef}
           initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
+          animate={{ opacity: tooltipPosition ? 1 : 0, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ delay: 0.2 }}
-          className="absolute bg-white rounded-2xl shadow-xl p-5 max-w-xs z-10"
+          className="absolute bg-white rounded-2xl shadow-xl p-5 z-10 mx-4"
           style={{
-            top: tooltipPosition.top,
-            left: tooltipPosition.left,
-            transform: tooltipPosition.transform,
+            top: tooltipPosition?.top ?? targetRect.top + targetRect.height + 12,
+            left: tooltipPosition?.left ?? 16,
+            maxWidth: 'calc(100vw - 32px)',
+            width: 280,
           }}
         >
-          {/* Arrow */}
-          <div
-            className={`absolute w-3 h-3 bg-white transform rotate-45 ${
-              position === 'top'
-                ? 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2'
-                : position === 'bottom'
-                ? 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2'
-                : position === 'left'
-                ? 'right-0 top-1/2 translate-x-1/2 -translate-y-1/2'
-                : 'left-0 top-1/2 -translate-x-1/2 -translate-y-1/2'
-            }`}
-          />
-
           <h3
             className="text-lg font-semibold text-slate-900 mb-2"
             style={{ fontFamily: 'var(--font-fraunces)' }}
