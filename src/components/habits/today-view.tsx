@@ -6,11 +6,10 @@ import { HabitCard } from "./habit-card";
 import { CreateHabitDialog } from "./create-habit-dialog";
 import { EditHabitDialog } from "./edit-habit-dialog";
 import { MilestoneCelebration } from "@/components/celebrations/MilestoneCelebration";
-import { DioramaDisplay } from "@/components/diorama-display";
 import { useGuidanceContext } from "@/components/guidance";
+import { useOnboarding } from "@/components/onboarding";
 import { Button } from "@/components/ui/button";
-import { Plus, Sparkles, Flame, ArrowRight, Leaf, Target } from "lucide-react";
-import Link from "next/link";
+import { Plus, Sparkles, Leaf, Target } from "lucide-react";
 import { toast } from "sonner";
 import type { Habit, HabitCompletion } from "@prisma/client";
 
@@ -38,11 +37,11 @@ function getGreeting() {
 }
 
 function getMotivationalMessage(completedCount: number, totalCount: number) {
-  if (totalCount === 0) return "Plant your first seed to start growing";
-  if (completedCount === totalCount) return "Your garden is thriving today!";
-  if (completedCount === 0) return "Time to nurture your habits";
-  if (completedCount / totalCount >= 0.5) return "Growing strong! Keep nurturing";
-  return "Every small step helps your garden grow";
+  if (totalCount === 0) return "Create your first habit to start your journey";
+  if (completedCount === totalCount) return "Amazing! All habits complete today!";
+  if (completedCount === 0) return "Time to build your streak";
+  if (completedCount / totalCount >= 0.5) return "Great progress! Keep it going";
+  return "Every small step builds momentum";
 }
 
 export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
@@ -51,7 +50,8 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   const [editingHabit, setEditingHabit] = useState<HabitWithCompletions | null>(null);
   const [celebratingMilestone, setCelebratingMilestone] = useState<MilestoneData | null>(null);
 
-  const { onHabitCreated, onHabitCompleted } = useGuidanceContext();
+  const { onHabitCreated: guidanceHabitCreated, onHabitCompleted: guidanceHabitCompleted } = useGuidanceContext();
+  const { onHabitCreated: onboardingHabitCreated, onHabitCompleted: onboardingHabitCompleted } = useOnboarding();
 
   const completedCount = habits.filter((h) => h.completions.length > 0).length;
   const totalCount = habits.length;
@@ -76,8 +76,9 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
     }
 
     if (!milestoneReached) {
-      onHabitCompleted(updatedHabit.currentStreak);
+      guidanceHabitCompleted(updatedHabit.currentStreak);
     }
+    onboardingHabitCompleted();
   };
 
   const handleHabitUncomplete = (habitId: string) => {
@@ -93,7 +94,8 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   const handleHabitCreated = (habit: HabitWithCompletions) => {
     setHabits((prev) => [...prev, habit]);
     setShowCreateDialog(false);
-    onHabitCreated();
+    guidanceHabitCreated();
+    onboardingHabitCreated();
   };
 
   const handleHabitUpdated = (updatedHabit: Habit) => {
@@ -221,53 +223,11 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
               transition={{ delay: 0.5 }}
               className="text-sm text-indigo-600 mt-3 text-center font-medium"
             >
-              All habits complete! Your garden flourishes.
+              All habits complete! You're on fire today!
             </motion.p>
           )}
         </motion.div>
       )}
-
-      {/* Mini Diorama Preview */}
-      {(() => {
-        const bestHabit = habits.reduce((best, h) =>
-          h.currentStreak > (best?.currentStreak || 0) ? h : best,
-          habits[0]
-        );
-        if (!bestHabit || bestHabit.currentStreak === 0) return null;
-
-        return (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.3 }}
-          >
-            <Link href="/garden">
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 cursor-pointer group transition-all hover:shadow-md hover:border-indigo-200">
-                <div className="flex items-center gap-4">
-                  <div className="relative">
-                    <DioramaDisplay
-                      day={Math.min(bestHabit.currentStreak, 200)}
-                      size="mini"
-                      animate={false}
-                      showGlow={false}
-                    />
-                    <div className="absolute inset-0 rounded-xl bg-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-slate-500">Your best streak</p>
-                    <p className="font-semibold text-slate-900 truncate">{bestHabit.name}</p>
-                    <div className="flex items-center gap-1.5 text-indigo-600 mt-1">
-                      <Flame className="h-4 w-4" />
-                      <span className="font-bold">{bestHabit.currentStreak} days</span>
-                    </div>
-                  </div>
-                  <ArrowRight className="h-5 w-5 text-slate-400 group-hover:text-indigo-600 group-hover:translate-x-1 transition-all" />
-                </div>
-              </div>
-            </Link>
-          </motion.div>
-        );
-      })()}
 
       {/* Habits List */}
       <div className="space-y-3">
@@ -309,13 +269,14 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
               className="text-xl font-semibold text-slate-900 mb-2"
               style={{ fontFamily: 'var(--font-fraunces)' }}
             >
-              Plant your first seed
+              Start your journey
             </h3>
             <p className="text-slate-500 mb-6 max-w-xs mx-auto">
-              Create your first habit and watch your garden grow with each day of progress
+              Create your first habit and watch your progress come to life
             </p>
             <Button
               onClick={() => setShowCreateDialog(true)}
+              data-onboarding="create-habit-button"
               className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-200"
             >
               <Plus className="h-4 w-4 mr-2" />
@@ -336,6 +297,7 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
           <Button
             onClick={() => setShowCreateDialog(true)}
             size="lg"
+            data-onboarding="create-habit-button"
             className="h-14 w-14 rounded-full bg-indigo-600 hover:bg-indigo-700 shadow-xl shadow-indigo-300 transition-all hover:scale-105"
           >
             <Plus className="h-6 w-6" />

@@ -7,8 +7,8 @@ from PIL import Image
 from tqdm import tqdm
 
 
-INPUT_DIR = Path("public/diorama/v4")
-OUTPUT_DIR = Path("public/diorama/final")
+INPUT_DIR = Path("public/diorama/v13-auto-anchor")
+OUTPUT_DIR = Path("public/diorama/v13-auto-anchor-nobg")
 
 
 def process_image(input_path: Path, output_path: Path) -> bool:

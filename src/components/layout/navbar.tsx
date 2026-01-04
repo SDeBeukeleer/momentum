@@ -19,7 +19,6 @@ import {
   LogOut,
   User,
   BarChart3,
-  Sprout,
   Leaf,
 } from "lucide-react";
 
@@ -32,7 +31,6 @@ interface NavbarProps {
 
 const navItems = [
   { href: "/dashboard", label: "Home", icon: Home },
-  { href: "/garden", label: "Garden", icon: Sprout },
   { href: "/dashboard/weight", label: "Weight", icon: Scale },
   { href: "/dashboard/progress", label: "Progress", icon: BarChart3 },
 ];

@@ -6,7 +6,6 @@ import { motion, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 
 const navOrder = [
   '/dashboard',
-  '/garden',
   '/dashboard/weight',
   '/dashboard/progress',
 ];

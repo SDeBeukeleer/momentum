@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
-  password      String
-  name          String?
-  goalWeight    Float?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id                     String    @id @default(cuid())
+  email                  String    @unique
+  password               String
+  name                   String?
+  goalWeight             Float?
+  hasCompletedOnboarding Boolean   @default(false)
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   habits        Habit[]
   weightLogs    WeightLog[]
@@ -34,6 +35,7 @@ model Habit {
   description           String?
   icon                  String    @default("🎯")
   color                 String    @default("#d97706")
+  dioramaTheme          String    @default("plant")  // plant, car, spaceship
 
   // Credits earned from milestones
   currentCredits        Int       @default(0)

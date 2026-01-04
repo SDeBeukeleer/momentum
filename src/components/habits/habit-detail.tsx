@@ -38,6 +38,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Habit, HabitCompletion } from "@prisma/client";
+import { DioramaDisplay, TimelineScrubber, useDioramaPreloader } from "@/components/diorama-display";
+import { getThemeConfig, getNextMilestone, getMilestoneProgress, type DioramaTheme } from "@/types/diorama";
+import { Gift } from "lucide-react";
 
 type HabitWithCompletions = Habit & {
   completions: HabitCompletion[];
@@ -118,6 +121,22 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
     color: initialHabit.color,
   });
 
+  // Diorama state
+  const [displayDay, setDisplayDay] = useState(Math.max(1, initialHabit.currentStreak));
+  const theme = (habit.dioramaTheme || 'plant') as DioramaTheme;
+  const themeConfig = getThemeConfig(theme);
+  const nextMilestone = getNextMilestone(habit.currentStreak);
+  const milestoneProgress = getMilestoneProgress(habit.currentStreak);
+  const isViewingCurrentDay = displayDay === Math.max(1, habit.currentStreak);
+
+  // Preload diorama images
+  useDioramaPreloader({
+    currentDay: displayDay,
+    theme,
+    preloadRadius: 10,
+    enabled: habit.currentStreak > 0,
+  });
+
   // Automatically recalculate streak and credits on mount
   useEffect(() => {
     const recalculate = async () => {
@@ -129,6 +148,10 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
         if (res.ok) {
           const data = await res.json();
           setHabit((prev) => ({ ...prev, ...data.habit }));
+          // Update displayDay to current streak
+          if (data.habit?.currentStreak > 0) {
+            setDisplayDay(data.habit.currentStreak);
+          }
         }
       } catch {
         // Silently fail - data will just show cached values
@@ -457,6 +480,58 @@ export function HabitDetail({ habit: initialHabit }: HabitDetailProps) {
           <div className="text-xs text-amber-700/60">Credits</div>
         </Card>
       </div>
+
+      {/* Diorama Progress */}
+      {habit.currentStreak > 0 && (
+        <Card className="overflow-hidden">
+          <div className="p-6 bg-gradient-to-b from-indigo-50/50 to-transparent">
+            <div className="flex justify-center">
+              <DioramaDisplay
+                day={displayDay}
+                theme={theme}
+                size="full"
+                habitColor={habit.color}
+                animate={isViewingCurrentDay}
+                showGlow={true}
+                priority={true}
+              />
+            </div>
+          </div>
+          <TimelineScrubber
+            currentStreak={habit.currentStreak}
+            displayDay={displayDay}
+            onDayChange={setDisplayDay}
+          />
+        </Card>
+      )}
+
+      {/* Next Milestone */}
+      {nextMilestone && (
+        <Card className="p-5">
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-2xl">{nextMilestone.emoji}</span>
+            <h3 className="font-medium text-slate-900">{nextMilestone.name}</h3>
+          </div>
+          <div className="flex items-baseline gap-2 mb-3">
+            <span className="text-3xl font-bold text-indigo-600">
+              {nextMilestone.day - habit.currentStreak}
+            </span>
+            <span className="text-slate-500">days to go</span>
+          </div>
+          <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+            <div
+              className="bg-gradient-to-r from-indigo-500 to-indigo-600 h-full rounded-full transition-all"
+              style={{ width: `${milestoneProgress * 100}%` }}
+            />
+          </div>
+          <div className="flex items-center justify-end mt-3">
+            <div className="flex items-center gap-1 text-sm text-amber-500">
+              <Gift className="w-4 h-4" />
+              <span>+{nextMilestone.bonusCredits} credit{nextMilestone.bonusCredits > 1 ? 's' : ''}</span>
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Calendar */}
       <Card className="p-4">

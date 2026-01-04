@@ -25,6 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { HabitIconDisplay } from "./habit-icons";
+import { DioramaDisplay } from "@/components/diorama-display";
+import { getThemeConfig, type DioramaTheme } from "@/types/diorama";
 import type { Habit, HabitCompletion } from "@prisma/client";
 
 interface MilestoneData {
@@ -86,6 +88,8 @@ export function HabitCard({
   const [showCelebration, setShowCelebration] = useState(false);
 
   const streakTier = getStreakTier(habit.currentStreak);
+  const theme = (habit.dioramaTheme || 'plant') as DioramaTheme;
+  const themeConfig = getThemeConfig(theme);
 
   const handleComplete = async (useCredit = false) => {
     if (loading) return;
@@ -152,6 +156,7 @@ export function HabitCard({
 
   return (
     <motion.div
+      data-onboarding="habit-card"
       className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${
         isCompleted
           ? "bg-indigo-50 border-indigo-200 shadow-md shadow-indigo-100"
@@ -181,17 +186,29 @@ export function HabitCard({
 
       <div className="p-4 relative z-0">
         <div className="flex items-center gap-4">
-          {/* Icon Container */}
+          {/* Icon or Mini Diorama */}
           <motion.div
             animate={isCompleted ? { scale: [1, 1.05, 1] } : {}}
             transition={{ duration: 0.5 }}
             className="relative"
           >
-            <HabitIconDisplay
-              iconId={habit.icon}
-              size="md"
-              glowing={isCompleted}
-            />
+            {habit.currentStreak > 0 ? (
+              <Link href={`/dashboard/habits/${habit.id}`} className="block">
+                <DioramaDisplay
+                  day={Math.min(habit.currentStreak, themeConfig.maxDays)}
+                  theme={theme}
+                  size="mini"
+                  animate={false}
+                  showGlow={false}
+                />
+              </Link>
+            ) : (
+              <HabitIconDisplay
+                iconId={habit.icon}
+                size="md"
+                glowing={isCompleted}
+              />
+            )}
             {isCompleted && (
               <motion.div
                 className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-indigo-600 flex items-center justify-center shadow-sm"

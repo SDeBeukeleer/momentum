@@ -1,13 +1,15 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
 import type { GuidanceMessage } from './GuidancePopup';
 import {
   type GuidanceKey,
   getGuidanceMessage,
-  getMilestoneGuidanceKey
+  getMilestoneGuidanceKey,
+  getFirstHabitCreatedMessage,
+  THEME_GUIDANCE_CONTENT,
 } from './guidance-definitions';
+import type { DioramaTheme } from '@/types/diorama';
 
 interface GuidanceState {
   shownKeys: string[];
@@ -30,7 +32,6 @@ interface UseGuidanceOptions {
 const DAILY_LIMIT = 2;
 
 export function useGuidance(options: UseGuidanceOptions = {}) {
-  const router = useRouter();
   const [state, setState] = useState<GuidanceState>({
     shownKeys: [],
     shownToday: 0,
@@ -99,31 +100,14 @@ export function useGuidance(options: UseGuidanceOptions = {}) {
 
       const message = getGuidanceMessage(key);
 
-      // Add navigation handlers
-      if (key === 'onboarding_first_habit_created') {
-        message.secondaryAction = {
-          label: 'Visit Garden',
-          onClick: () => router.push('/garden'),
-        };
-      }
-      if (key === 'milestone_14' || key === 'feature_garden_discovery') {
-        message.secondaryAction = {
-          label: 'See My Garden',
-          onClick: () => router.push('/garden'),
-        };
-      }
-      if (key === 'feature_garden_discovery') {
-        message.primaryAction = {
-          label: 'Visit Garden',
-          onClick: () => router.push('/garden'),
-        };
-      }
+      // Navigation handlers removed - garden page no longer exists
+      // Users can click on habit cards to see their diorama progress
 
       setCurrentGuidance(message);
       markAsShown(key);
       return true;
     },
-    [canShowGuidance, markAsShown, router]
+    [canShowGuidance, markAsShown]
   );
 
   // Dismiss current guidance

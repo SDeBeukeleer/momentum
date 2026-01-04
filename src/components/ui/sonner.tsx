@@ -26,12 +26,27 @@ const Toaster = ({ ...props }: ToasterProps) => {
       }}
       style={
         {
-          "--normal-bg": "var(--popover)",
-          "--normal-text": "var(--popover-foreground)",
-          "--normal-border": "var(--border)",
-          "--border-radius": "var(--radius)",
+          "--normal-bg": "#ffffff",
+          "--normal-text": "#1e293b",
+          "--normal-border": "#e2e8f0",
+          "--success-bg": "#f0fdf4",
+          "--success-text": "#166534",
+          "--success-border": "#bbf7d0",
+          "--error-bg": "#fef2f2",
+          "--error-text": "#991b1b",
+          "--error-border": "#fecaca",
+          "--border-radius": "0.75rem",
         } as React.CSSProperties
       }
+      toastOptions={{
+        classNames: {
+          toast: "bg-white border-slate-200 shadow-lg",
+          title: "text-slate-900 font-medium",
+          description: "text-slate-500",
+          success: "!bg-emerald-50 !border-emerald-200 !text-emerald-800 [&_[data-title]]:!text-emerald-800 [&_[data-description]]:!text-emerald-600",
+          error: "!bg-red-50 !border-red-200 !text-red-800 [&_[data-title]]:!text-red-800 [&_[data-description]]:!text-red-600",
+        },
+      }}
       {...props}
     />
   )

@@ -41,6 +41,7 @@ export async function POST(request: Request) {
     color,
     frequency,
     targetDays,
+    dioramaTheme,
   } = body;
 
   if (!name) {
@@ -56,6 +57,7 @@ export async function POST(request: Request) {
       color: color || "#d97706",
       frequency: frequency || "daily",
       targetDays,
+      dioramaTheme: dioramaTheme || "plant",
     },
   });
 

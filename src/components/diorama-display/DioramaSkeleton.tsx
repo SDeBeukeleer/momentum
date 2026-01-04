@@ -23,7 +23,7 @@ export function DioramaSkeleton({ size = 'full', className }: DioramaSkeletonPro
       <div className="flex flex-col items-center gap-2 text-slate-400">
         <div className="w-8 h-8 border-2 border-slate-400 border-t-transparent rounded-full animate-spin" />
         {size !== 'mini' && (
-          <span className="text-sm">Loading garden...</span>
+          <span className="text-sm">Loading...</span>
         )}
       </div>
     </div>

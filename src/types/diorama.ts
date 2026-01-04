@@ -1,5 +1,62 @@
 // Living Diorama Types - Image-based visualization of habit streaks
 
+// Available diorama themes
+export const DIORAMA_THEMES = ['plant', 'car', 'spaceship'] as const;
+export type DioramaTheme = (typeof DIORAMA_THEMES)[number];
+
+export interface ThemeConfig {
+  id: DioramaTheme;
+  name: string;
+  description: string;
+  emoji: string;
+  folder: string;
+  maxDays: number;
+  previewDay: number; // Day to show in preview
+}
+
+export const THEME_CONFIGS: Record<DioramaTheme, ThemeConfig> = {
+  plant: {
+    id: 'plant',
+    name: 'Growing Garden',
+    description: 'Watch a plant grow from seed to flourishing garden',
+    emoji: '🌱',
+    folder: 'final',
+    maxDays: 200,
+    previewDay: 50,
+  },
+  car: {
+    id: 'car',
+    name: 'Car Restoration',
+    description: 'Restore a rusty Porsche into a championship race car',
+    emoji: '🏎️',
+    folder: 'v13-auto-anchor-nobg',
+    maxDays: 200,
+    previewDay: 100,
+  },
+  spaceship: {
+    id: 'spaceship',
+    name: 'Spaceship Builder',
+    description: 'Build a spaceship piece by piece',
+    emoji: '🚀',
+    folder: 'v14-spaceship-nobg',
+    maxDays: 130,
+    previewDay: 65,
+  },
+};
+
+// Get theme config by ID
+export function getThemeConfig(theme: DioramaTheme): ThemeConfig {
+  return THEME_CONFIGS[theme] ?? THEME_CONFIGS.plant;
+}
+
+// Get diorama image path for a theme and day
+export function getDioramaPath(theme: DioramaTheme, day: number): string {
+  const config = getThemeConfig(theme);
+  const clampedDay = Math.max(1, Math.min(config.maxDays, day));
+  const paddedDay = clampedDay.toString().padStart(3, '0');
+  return `/diorama/${config.folder}/day-${paddedDay}.png`;
+}
+
 // Simplified plant stages for display purposes
 export const PLANT_STAGES = [
   'seed',

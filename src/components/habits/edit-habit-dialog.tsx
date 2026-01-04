@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker, HabitIconDisplay, HABIT_ICONS } from "./habit-icons";
+import { ThemePicker } from "./theme-picker";
 import { Save } from "lucide-react";
 import type { Habit } from "@prisma/client";
+import { DIORAMA_THEMES, type DioramaTheme } from "@/types/diorama";
 
 interface EditHabitDialogProps {
   habit: Habit;
@@ -31,6 +33,9 @@ export function EditHabitDialog({
 }: EditHabitDialogProps) {
   const [name, setName] = useState(habit.name);
   const [icon, setIcon] = useState(habit.icon);
+  const [theme, setTheme] = useState<DioramaTheme>(
+    (habit.dioramaTheme as DioramaTheme) || "plant"
+  );
   const [loading, setLoading] = useState(false);
 
   // Update state when habit changes
@@ -39,6 +44,10 @@ export function EditHabitDialog({
     // Convert old emoji icons to new icon IDs if needed
     const isValidIconId = HABIT_ICONS.some((i) => i.id === habit.icon);
     setIcon(isValidIconId ? habit.icon : "target");
+    // Set theme, validating it's a valid theme
+    const habitTheme = habit.dioramaTheme as DioramaTheme;
+    const isValidTheme = DIORAMA_THEMES.includes(habitTheme);
+    setTheme(isValidTheme ? habitTheme : "plant");
   }, [habit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,6 +67,7 @@ export function EditHabitDialog({
           name: name.trim(),
           icon,
           color: "#00c458", // Keep consistent with primary green
+          dioramaTheme: theme,
         }),
       });
 
@@ -122,6 +132,12 @@ export function EditHabitDialog({
           <div className="space-y-3">
             <Label className="text-slate-700">Choose an Icon</Label>
             <IconPicker value={icon} onChange={setIcon} />
+          </div>
+
+          {/* Theme Selection */}
+          <div className="space-y-3">
+            <Label className="text-slate-700">Choose a Theme</Label>
+            <ThemePicker value={theme} onChange={setTheme} />
           </div>
 
           {/* Actions */}

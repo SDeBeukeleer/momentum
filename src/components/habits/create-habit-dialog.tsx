@@ -13,8 +13,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IconPicker, HabitIconDisplay } from "./habit-icons";
+import { ThemePicker } from "./theme-picker";
 import { Coins, Sparkles } from "lucide-react";
 import type { Habit, HabitCompletion } from "@prisma/client";
+import type { DioramaTheme } from "@/types/diorama";
 
 interface CreateHabitDialogProps {
   open: boolean;
@@ -29,6 +31,7 @@ export function CreateHabitDialog({
 }: CreateHabitDialogProps) {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("target");
+  const [theme, setTheme] = useState<DioramaTheme>("plant");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +51,7 @@ export function CreateHabitDialog({
           name: name.trim(),
           icon,
           color: "#00c458", // Default to primary green
+          dioramaTheme: theme,
         }),
       });
 
@@ -64,6 +68,7 @@ export function CreateHabitDialog({
       // Reset form
       setName("");
       setIcon("target");
+      setTheme("plant");
     } catch {
       toast.error("Something went wrong");
     } finally {
@@ -117,6 +122,12 @@ export function CreateHabitDialog({
           <div className="space-y-3">
             <Label className="text-slate-700">Choose an Icon</Label>
             <IconPicker value={icon} onChange={setIcon} />
+          </div>
+
+          {/* Theme Selection */}
+          <div className="space-y-3">
+            <Label className="text-slate-700">Choose a Theme</Label>
+            <ThemePicker value={theme} onChange={setTheme} />
           </div>
 
           {/* Info about credits */}

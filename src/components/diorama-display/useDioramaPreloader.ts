@@ -1,43 +1,42 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-
-const MAX_DAY = 200;
-
-function getDioramaPath(day: number): string {
-  const clampedDay = Math.max(1, Math.min(MAX_DAY, day));
-  const paddedDay = clampedDay.toString().padStart(3, '0');
-  return `/diorama/final/day-${paddedDay}.png`;
-}
+import { getDioramaPath, getThemeConfig, type DioramaTheme } from '@/types/diorama';
 
 interface PreloaderOptions {
   currentDay: number;
+  theme?: DioramaTheme;
   preloadRadius?: number;
   enabled?: boolean;
 }
 
 export function useDioramaPreloader({
   currentDay,
+  theme = 'plant',
   preloadRadius = 5,
   enabled = true,
 }: PreloaderOptions) {
-  const preloadedRef = useRef<Set<number>>(new Set());
-  const loadingRef = useRef<Set<number>>(new Set());
+  const preloadedRef = useRef<Set<string>>(new Set());
+  const loadingRef = useRef<Set<string>>(new Set());
+  const themeConfig = getThemeConfig(theme);
 
-  const preloadImage = useCallback((day: number) => {
-    if (day < 1 || day > MAX_DAY) return;
-    if (preloadedRef.current.has(day) || loadingRef.current.has(day)) return;
+  const preloadImage = useCallback((day: number, currentTheme: DioramaTheme) => {
+    const config = getThemeConfig(currentTheme);
+    if (day < 1 || day > config.maxDays) return;
 
-    loadingRef.current.add(day);
+    const key = `${currentTheme}-${day}`;
+    if (preloadedRef.current.has(key) || loadingRef.current.has(key)) return;
+
+    loadingRef.current.add(key);
 
     const img = new window.Image();
-    img.src = getDioramaPath(day);
+    img.src = getDioramaPath(currentTheme, day);
     img.onload = () => {
-      preloadedRef.current.add(day);
-      loadingRef.current.delete(day);
+      preloadedRef.current.add(key);
+      loadingRef.current.delete(key);
     };
     img.onerror = () => {
-      loadingRef.current.delete(day);
+      loadingRef.current.delete(key);
     };
   }, []);
 
@@ -45,31 +44,32 @@ export function useDioramaPreloader({
     if (!enabled) return;
 
     // Preload current day first
-    preloadImage(currentDay);
+    preloadImage(currentDay, theme);
 
     // Preload surrounding days (prioritize forward)
     for (let offset = 1; offset <= preloadRadius; offset++) {
-      preloadImage(currentDay + offset);
-      preloadImage(currentDay - offset);
+      preloadImage(currentDay + offset, theme);
+      preloadImage(currentDay - offset, theme);
     }
-  }, [currentDay, preloadRadius, enabled, preloadImage]);
+  }, [currentDay, theme, preloadRadius, enabled, preloadImage]);
 
   const isPreloaded = useCallback(
-    (day: number) => preloadedRef.current.has(day),
-    []
+    (day: number) => preloadedRef.current.has(`${theme}-${day}`),
+    [theme]
   );
 
   const preloadRange = useCallback(
     (start: number, end: number) => {
       for (let day = start; day <= end; day++) {
-        preloadImage(day);
+        preloadImage(day, theme);
       }
     },
-    [preloadImage]
+    [preloadImage, theme]
   );
 
   return {
     isPreloaded,
     preloadRange,
+    maxDays: themeConfig.maxDays,
   };
 }

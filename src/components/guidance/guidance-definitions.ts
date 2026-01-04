@@ -1,4 +1,49 @@
 import type { GuidanceMessage } from './GuidancePopup';
+import type { DioramaTheme } from '@/types/diorama';
+
+// Theme-specific content for guidance messages
+export const THEME_GUIDANCE_CONTENT: Record<DioramaTheme, {
+  name: string;
+  emoji: string;
+  growthVerb: string;
+  journeyNoun: string;
+}> = {
+  plant: {
+    name: 'Garden',
+    emoji: '🌿',
+    growthVerb: 'grows',
+    journeyNoun: 'garden',
+  },
+  car: {
+    name: 'Workshop',
+    emoji: '🏎️',
+    growthVerb: 'transforms',
+    journeyNoun: 'restoration',
+  },
+  spaceship: {
+    name: 'Launchpad',
+    emoji: '🚀',
+    growthVerb: 'takes shape',
+    journeyNoun: 'spaceship',
+  },
+};
+
+// Get theme-specific first habit created message
+export function getFirstHabitCreatedMessage(theme: DioramaTheme = 'plant'): Omit<GuidanceMessage, 'key'> {
+  const content = THEME_GUIDANCE_CONTENT[theme];
+  return {
+    title: `Your ${content.name} Awaits`,
+    emoji: content.emoji,
+    message: `As your streak grows, so does your ${content.journeyNoun}. Each day you show up, it ${content.growthVerb} into something more amazing. Check it out anytime!`,
+    primaryAction: {
+      label: 'Start Tracking',
+    },
+    secondaryAction: {
+      label: `Visit ${content.name}`,
+    },
+    celebrate: true,
+  };
+}
 
 // All guidance keys - used for tracking what's been shown
 export type GuidanceKey =
@@ -27,9 +72,9 @@ export type GuidanceKey =
 export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>> = {
   // === ONBOARDING ===
   onboarding_no_habits: {
-    title: "Let's Plant Your First Seed",
-    emoji: '🌱',
-    message: "Every great journey starts with a single step. Create your first habit and watch it grow into something beautiful.",
+    title: "Let's Get Started",
+    emoji: '🚀',
+    message: "Every great journey starts with a single step. Create your first habit and watch your progress come to life.",
     primaryAction: {
       label: 'Create My First Habit',
     },
@@ -37,14 +82,11 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   },
 
   onboarding_first_habit_created: {
-    title: 'Your Garden Awaits',
-    emoji: '🌿',
-    message: "As your streak grows, so does your garden. Each day you show up, your plant evolves into something more beautiful. Check it out anytime!",
+    title: 'Your Journey Begins',
+    emoji: '✨',
+    message: "As your streak grows, so does your progress visualization. Each day you show up, it evolves into something more amazing. Tap your habit to see it!",
     primaryAction: {
       label: 'Start Tracking',
-    },
-    secondaryAction: {
-      label: 'Visit Garden',
     },
     celebrate: true,
   },
@@ -83,12 +125,9 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   milestone_14: {
     title: 'Two Weeks!',
     emoji: '🌿',
-    message: "You're officially in habit-forming territory. Your garden is flourishing - have you checked it lately?",
+    message: "You're officially in habit-forming territory. Your progress is looking amazing - tap your habit to see it!",
     primaryAction: {
       label: 'Keep Going!',
-    },
-    secondaryAction: {
-      label: 'See My Garden',
     },
     celebrate: true,
   },
@@ -116,7 +155,7 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   milestone_50: {
     title: 'Fifty Days!',
     emoji: '✨',
-    message: "Halfway to 100! You've proven this habit is part of your life now. The garden shows your incredible journey.",
+    message: "Halfway to 100! You've proven this habit is part of your life now. Your progress tells an incredible story.",
     primaryAction: {
       label: 'Onwards!',
     },
@@ -146,7 +185,7 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   milestone_200: {
     title: 'Transcendent!',
     emoji: '🌟',
-    message: "200 days. Your garden has reached its ultimate form. You've achieved what most only dream of. You are the habit.",
+    message: "200 days. Your journey has reached its ultimate form. You've achieved what most only dream of. You are the habit.",
     primaryAction: {
       label: 'Enlightened!',
     },
@@ -165,11 +204,11 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   },
 
   feature_garden_discovery: {
-    title: 'Your Garden is Growing',
+    title: 'Your Progress is Growing',
     emoji: '🌱',
-    message: "Your streak is alive in the garden! Watch your progress bloom into a living scene that evolves with every day you show up.",
+    message: "Your streak is coming to life! Tap your habit to watch your progress evolve into something amazing with every day you show up.",
     primaryAction: {
-      label: 'Visit Garden',
+      label: 'Got It!',
     },
     celebrate: false,
   },
@@ -191,7 +230,7 @@ export const GUIDANCE_MESSAGES: Record<GuidanceKey, Omit<GuidanceMessage, 'key'>
   welcome_back: {
     title: 'Welcome Back, Champion',
     emoji: '🌅',
-    message: "Streaks end. Habits don't have to. The best time to start again is right now. Your garden is ready to grow again.",
+    message: "Streaks end. Habits don't have to. The best time to start again is right now. Your journey continues!",
     primaryAction: {
       label: "Let's Go!",
     },

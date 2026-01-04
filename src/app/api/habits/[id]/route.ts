@@ -66,6 +66,7 @@ export async function PATCH(
       frequency: body.frequency,
       targetDays: body.targetDays,
       isArchived: body.isArchived,
+      dioramaTheme: body.dioramaTheme,
     },
   });
 
