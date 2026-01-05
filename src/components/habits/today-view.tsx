@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { HabitCard } from "./habit-card";
 import { CreateHabitDialog } from "./create-habit-dialog";
@@ -49,6 +49,11 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingHabit, setEditingHabit] = useState<HabitWithCompletions | null>(null);
   const [celebratingMilestone, setCelebratingMilestone] = useState<MilestoneData | null>(null);
+
+  // Sync state when server data changes (e.g., after navigating back)
+  useEffect(() => {
+    setHabits(initialHabits);
+  }, [initialHabits]);
 
   const { onHabitCreated: guidanceHabitCreated, onHabitCompleted: guidanceHabitCompleted } = useGuidanceContext();
   const { onHabitCreated: onboardingHabitCreated, onHabitCompleted: onboardingHabitCompleted } = useOnboarding();
