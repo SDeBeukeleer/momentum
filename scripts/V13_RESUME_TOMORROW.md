@@ -33,7 +33,7 @@ Run the following command when the API quota resets:
 
 ```bash
 cd /Users/stevendebeukeleer/Claude\ Code\ Projects/momentum
-export GEMINI_API_KEY=REDACTED_API_KEY
+export GEMINI_API_KEY=your-api-key-here
 python scripts/generate_v13_auto_anchor.py
 ```
 
