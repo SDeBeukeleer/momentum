@@ -56,9 +56,17 @@ export const HABIT_ICONS: { id: string; icon: LucideIcon; label: string }[] = [
   { id: "trophy", icon: Trophy, label: "Goals" },
 ];
 
-export function getHabitIcon(iconId: string): LucideIcon {
+export function getHabitIcon(iconId: string): LucideIcon | null {
   const found = HABIT_ICONS.find((i) => i.id === iconId);
-  return found?.icon || Target;
+  return found?.icon || null;
+}
+
+// Check if a string is an emoji (not a legacy icon ID)
+function isEmoji(str: string): boolean {
+  // If it's a known icon ID, it's not an emoji
+  if (HABIT_ICONS.some((i) => i.id === str)) return false;
+  // If string length is short and contains non-ASCII, likely an emoji
+  return str.length <= 4 && /[^\x00-\x7F]/.test(str);
 }
 
 interface HabitIconDisplayProps {
@@ -75,6 +83,7 @@ export function HabitIconDisplay({
   glowing = false,
 }: HabitIconDisplayProps) {
   const Icon = getHabitIcon(iconId);
+  const isEmojiIcon = isEmoji(iconId);
 
   const sizeClasses = {
     sm: "h-8 w-8",
@@ -88,6 +97,12 @@ export function HabitIconDisplay({
     lg: "h-8 w-8",
   };
 
+  const emojiSizes = {
+    sm: "text-base",
+    md: "text-2xl",
+    lg: "text-3xl",
+  };
+
   return (
     <div
       className={cn(
@@ -98,7 +113,13 @@ export function HabitIconDisplay({
       )}
     >
       <div className="absolute inset-0 rounded-xl border border-indigo-200" />
-      <Icon className={cn("text-indigo-600", iconSizes[size])} />
+      {isEmojiIcon ? (
+        <span className={cn("relative z-10", emojiSizes[size])}>{iconId}</span>
+      ) : Icon ? (
+        <Icon className={cn("text-indigo-600 relative z-10", iconSizes[size])} />
+      ) : (
+        <Target className={cn("text-indigo-600 relative z-10", iconSizes[size])} />
+      )}
       {glowing && (
         <div className="absolute inset-0 rounded-xl bg-indigo-100/50 animate-pulse" />
       )}

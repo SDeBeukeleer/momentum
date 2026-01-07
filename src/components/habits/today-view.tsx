@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { HabitCard } from "./habit-card";
 import { CreateHabitDialog } from "./create-habit-dialog";
@@ -45,6 +46,7 @@ function getMotivationalMessage(completedCount: number, totalCount: number) {
 }
 
 export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
+  const router = useRouter();
   const [habits, setHabits] = useState(initialHabits);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingHabit, setEditingHabit] = useState<HabitWithCompletions | null>(null);
@@ -54,6 +56,18 @@ export function TodayView({ habits: initialHabits, userName }: TodayViewProps) {
   useEffect(() => {
     setHabits(initialHabits);
   }, [initialHabits]);
+
+  // Refresh data when page becomes visible (e.g., returning from another tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        router.refresh();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [router]);
 
   const { onHabitCreated: guidanceHabitCreated, onHabitCompleted: guidanceHabitCompleted } = useGuidanceContext();
   const { onHabitCreated: onboardingHabitCreated, onHabitCompleted: onboardingHabitCompleted } = useOnboarding();

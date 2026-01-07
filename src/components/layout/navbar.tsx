@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,14 @@ const navItems = [
 
 export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Navigate with refresh to ensure fresh data
+  const handleNavigation = (href: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    router.push(href);
+    router.refresh();
+  };
 
   return (
     <>
@@ -66,6 +74,7 @@ export function Navbar({ user }: NavbarProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={(e) => handleNavigation(item.href, e)}
                   className={cn(
                     "relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200",
                     isActive
@@ -139,6 +148,7 @@ export function Navbar({ user }: NavbarProps) {
               <Link
                 key={item.href}
                 href={item.href}
+                onClick={(e) => handleNavigation(item.href, e)}
                 className={cn(
                   "relative flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-xl transition-all min-w-[60px]",
                   isActive
